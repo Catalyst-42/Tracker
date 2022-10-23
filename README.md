@@ -1,9 +1,10 @@
 # Tracker  
 ## Установка
-Для работы необходим [Python3](https://www.python.org), модуль `matplotlib` для графиков и модуль `PIL` для генерации кружочка времени  
+Для работы необходим [Python3](https://www.python.org), модуль `matplotlib` для графиков и модуль `PIL` и `numpy` для генерации кружочка времени
 
 `pip3 install matplotlib`  
 `pip3 install Pillow`  
+`pip3 install numpy`
 
 ## Про трекер
 Небольшое консольное приложения для мониторинга свободного времени. Основной скрипт запускается через `python3 tracker.py`
