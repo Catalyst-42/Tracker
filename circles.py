@@ -7,12 +7,12 @@ from PIL import Image
 import save
 
 s = 1
-m = 60*s
-h = 60*m
+m = 60 * s
+h = 60 * m
 
 R = 32
 MAX_X, MAX_Y = 128, 128
-RESIZE_TO = (MAX_X*4, MAX_Y*4)
+RESIZE_TO = (MAX_X * 4, MAX_Y * 4)
 
 COLORS = {
     "Сон": (31, 119, 180),
@@ -42,11 +42,11 @@ for x in save.activities_log:
     if x < x_prev: days += 1
     x_prev = x
 
-    y = round(cos(pi * x / 12)*(R + days//7) - MAX_Y//2)
-    x = round(sin(pi * x / 12)*(R + days//7) + MAX_X//2)
+    y = round(cos(pi * x / 12) * (R + days // 7) - MAX_Y // 2)
+    x = round(sin(pi * x / 12) * (R + days // 7) + MAX_X // 2)
     data[x][y] = COLORS[color]
 
-print(days/7, 'weeks')
+print(days / 7, 'weeks')
 
 image = Image.fromarray(data)
 image = image.transpose(Image.ROTATE_90)
