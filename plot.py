@@ -5,35 +5,17 @@ import matplotlib.ticker as mtick
 from matplotlib.patches import Patch
 
 from save import *
+from constants import ACTIVITIES, AVERAGE_DAY, DAYS_OF_WEEK, START_DAY
+from constants import h, m, s
 
-START_DAY = 6 # ВС
-DAYS_OF_WEEK = ('ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'ВС')
+# Because colors in matplotlib should be in 0-1 range
+for activity in ACTIVITIES:
+    ACTIVITIES[activity] = [rgb/255 for rgb in ACTIVITIES[activity]]
 ALL_EXPERIMENT_TIME = sum([sum(activities[i]) for i in activities])
-COLORS = {
-    "Сон": '#1f77b4',
-    "Отдых": '#ff7f0e',
-    "Пары": '#2ca02c',
-    "Метро": '#d62728',
-    "Домашка": '#9567bd',
-    "Магазин": '#8c564b'
-}
-
-s = 1
-m = 60
-h = 3600
-
-average_day = {
-    "Сон": [0],
-    "Отдых": [0],
-    "Пары": [0],
-    "Метро": [0],
-    "Домашка": [0],
-    "Магазин": [0]
-}
 
 for activity in activities:
-    average_day[activity] = sum(activities[activity])
-    print(f'{activity}: {round(average_day[activity]/h,2)}ч')
+    AVERAGE_DAY[activity] = sum(activities[activity])
+    print(f'{activity}: {round(AVERAGE_DAY[activity]/h,2)}ч')
 
 fig, axs = plt.subplot_mosaic([['main'],
                             ['average']], figsize=(9, 1+ALL_EXPERIMENT_TIME//(24*h)*0.25), gridspec_kw={'height_ratios': [ALL_EXPERIMENT_TIME//(24*h), 1]})
@@ -46,7 +28,7 @@ days = 1
 # First plot - distribution for all days
 def bar_constructor(x, y):
     global offset
-    ax[0][1].barh(x, y, left=offset, height=1, edgecolor='black', linewidth=.5, color=COLORS[activity[0]])
+    ax[0][1].barh(x, y, left=offset, height=1, edgecolor='black', linewidth=.5, color=ACTIVITIES[activity[0]])
     if y >= .9*h:
         ax[0][1].text((y/2+offset), x, f'{round(y/h) if round(y/h, 1) == round(y/h) else round(y/h, 1)}ч', va='center', ha='center')
     offset += y
@@ -85,16 +67,16 @@ ax[0][1].set_xticks([i*864 for i in range(0, 101, 10)], [f'{i}%' for i in range(
 ax[0][1].yaxis.set_major_formatter(lambda x, _: DAYS_OF_WEEK[(int(x-.5)+START_DAY)%7])
 ax[0][1].xaxis.set_major_formatter(lambda x, _: f'{round(x/h) if round(x/h, 1) == round(x/h) else round(x/h, 1)}ч')
 
-legend_elements = [*[Patch(facecolor=COLORS[i], edgecolor='black', linewidth=.5, label=i) for i in average_day]]
-ax[0][1].legend(handles=legend_elements, ncol=len(average_day), loc='upper left')
+legend_elements = [*[Patch(facecolor=ACTIVITIES[i], edgecolor='black', linewidth=.5, label=i) for i in AVERAGE_DAY]]
+ax[0][1].legend(handles=legend_elements, ncol=len(AVERAGE_DAY), loc='upper left')
 
 # Second plot - Average time
 offset = 0
-for activity in list(average_day.keys()):
-    ax[1][1].barh(1, average_day[activity], height=1, edgecolor='black', linewidth=.5, left=offset, label=activity)
-    if average_day[activity] >= ALL_EXPERIMENT_TIME * 0.05:
-        ax[1][1].text((average_day[activity]/2+offset), 1, f'{round(average_day[activity]/ALL_EXPERIMENT_TIME*100, 1)}%', va='center', ha='center')
-    offset += average_day[activity]
+for activity in list(AVERAGE_DAY.keys()):
+    ax[1][1].barh(1, AVERAGE_DAY[activity], height=1, edgecolor='black', linewidth=.5, left=offset, label=activity)
+    if AVERAGE_DAY[activity] >= ALL_EXPERIMENT_TIME * 0.05:
+        ax[1][1].text((AVERAGE_DAY[activity]/2+offset), 1, f'{round(AVERAGE_DAY[activity]/ALL_EXPERIMENT_TIME*100, 1)}%', va='center', ha='center')
+    offset += AVERAGE_DAY[activity]
 
 ax[1][1].set_yticks([1], ['AV'])
 ax[1][1].set_ylim(.5, 1.5)
