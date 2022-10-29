@@ -139,7 +139,7 @@ while True:
         activity_time = activities[activity_name][-1]
 
         try: 
-            displaced_time = eval(input(f"{activities_log[-1][0]}({activities_log[-1][1]}) {C}{timedelta(seconds=round(activity_time))}{W} \nОтнять секунд: "))
+            displaced_time += eval(input(f"{activities_log[-1][0]}({activities_log[-1][1]}) {C}{timedelta(seconds=round(activity_time))}{W} \nОтнять секунд: "))
         except: 
             input(f"{R}\nОшибка ввода{W}")
         activities[activity_name][-1] -= displaced_time

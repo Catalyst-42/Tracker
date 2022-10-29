@@ -25,7 +25,7 @@ for activity in save.activities:
     print(f'{activity}: {round(AVERAGE_DAY[activity]/h,2)}ч')
 
 fig, axs = plt.subplot_mosaic([['main'],
-                            ['average']], figsize=(9, 1+ALL_EXPERIMENT_TIME//(24*h)*0.25), gridspec_kw={'height_ratios': [ALL_EXPERIMENT_TIME//(24*h), 1]})
+                            ['average']], figsize=(PLOT_WIDTH, PLOT_START_HEIGTH+ALL_EXPERIMENT_TIME//(24*h)*PLOT_HEIGTH_STEP), gridspec_kw={'height_ratios': [ALL_EXPERIMENT_TIME//(24*h), 1]})
 fig.canvas.manager.set_window_title('Распределение времени')
 ax = list(axs.items())
 x = [1]
@@ -66,7 +66,7 @@ for i in range(len(save.activities_log)):
         save.activities[activity[0]].pop(0)
 
 ax[0][1].set_yticks(x, [DAYS_OF_WEEK[(i+START_DAY)%7] for i in range(len(x))])
-ax[0][1].set_ylim(-.2, len(x) + .5)
+ax[0][1].set_ylim(-PLOT_START_DAY_OFFSET, len(x) + .5)
 ax[0][1].invert_yaxis()
 ax[0][1].set_xlim(0, 24*h)
 ax[0][1].set_xticks([i*864 for i in range(0, 101, 10)], [f'{i}%' for i in range(0, 101, 10)])
@@ -75,12 +75,12 @@ ax[0][1].yaxis.set_major_formatter(lambda x, _: DAYS_OF_WEEK[(int(x-.5)+START_DA
 ax[0][1].xaxis.set_major_formatter(lambda x, _: f'{round(x/h) if round(x/h, 1) == round(x/h) else round(x/h, 1)}ч')
 
 legend_elements = [*[Patch(facecolor=ACTIVITIES[i], edgecolor='black', linewidth=.5, label=i) for i in AVERAGE_DAY]]
-ax[0][1].legend(handles=legend_elements, ncol=len(AVERAGE_DAY), loc='upper left')
+ax[0][1].legend(handles=legend_elements, ncol=LABELS_IN_ROW, loc='upper left')
 
 # Second plot - Average time
 offset = 0
-for activity in list(AVERAGE_DAY.keys()):
-    ax[1][1].barh(1, AVERAGE_DAY[activity], height=1, edgecolor='black', linewidth=.5, left=offset, label=activity)
+for activity in AVERAGE_DAY:
+    ax[1][1].barh(1, AVERAGE_DAY[activity], height=1, edgecolor='black', color=ACTIVITIES[activity], linewidth=.5, left=offset, label=activity)
     if AVERAGE_DAY[activity] >= ALL_EXPERIMENT_TIME * 0.05:
         ax[1][1].text((AVERAGE_DAY[activity]/2+offset), 1, f'{round(AVERAGE_DAY[activity]/ALL_EXPERIMENT_TIME*100, 1)}%', va='center', ha='center')
     offset += AVERAGE_DAY[activity]
@@ -95,5 +95,5 @@ ax[1][1].yaxis.set_major_formatter(lambda x, _: "AV")
 ax[1][1].xaxis.set_major_formatter(mtick.PercentFormatter(ALL_EXPERIMENT_TIME))
 
 plt.tight_layout()
-plt.savefig(f'day_{days}.png', bbox_inches='tight')
+plt.savefig(f'plot.png', bbox_inches='tight')
 plt.show()

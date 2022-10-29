@@ -14,11 +14,19 @@ ACTIVITIES = {
     "Домашка": (149, 103, 189),
     "Магазин": (140, 86, 75),
     # Should be expanded if you have created more activities
+    # Order determines plot average day
 }
 
 AVERAGE_DAY = {}
 for activity_name in ACTIVITIES:
     AVERAGE_DAY |= {activity_name: [0]}
+
+# Plot balues
+PLOT_WIDTH = 9
+PLOT_START_HEIGTH = 2.2
+PLOT_HEIGTH_STEP = 0.25
+PLOT_START_DAY_OFFSET = .2
+LABELS_IN_ROW = len(ACTIVITIES)
 
 # Circles values
 RADIUS = 32

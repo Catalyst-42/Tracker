@@ -15,6 +15,7 @@ for activity in save.activities:
 if set(save.activities.keys()) != set(ACTIVITIES.keys()):
     exit()
 
+# Make circle
 data = numpy.zeros((MAX_X, MAX_Y, 3), dtype=numpy.uint8)
 data[:][:] = COLOR_BG
 x_prev = 0
