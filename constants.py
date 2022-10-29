@@ -28,9 +28,9 @@ COLOR_BG = (21, 23, 32)
 
 # Terminal colors
 W = "\033[0m"  # white
-B = "\033[30m" # blue
 R = "\033[31m" # red
 G = "\033[32m" # green
 Y = "\033[33m" # yellow
+B = "\033[34m" # blue
 M = "\033[35m" # magenta
 C = "\033[36m" # cyan

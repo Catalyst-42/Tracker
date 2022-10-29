@@ -5,8 +5,15 @@ import numpy
 from PIL import Image
 
 import save
-from constants import ACTIVITIES, COLOR_BG, MAX_X, MAX_Y, RESIZE_TO, RADIUS
-from constants import h, m, s
+from constants import *
+
+# Check if there are colors for all activities
+for activity in save.activities:
+    if activity not in ACTIVITIES:
+        print(f"Занятия {B}{activity}{W} нет в списке активностей!")
+
+if set(save.activities.keys()) != set(ACTIVITIES.keys()):
+    exit()
 
 data = numpy.zeros((MAX_X, MAX_Y, 3), dtype=numpy.uint8)
 data[:][:] = COLOR_BG

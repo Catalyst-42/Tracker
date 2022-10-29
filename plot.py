@@ -4,17 +4,24 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as mtick
 from matplotlib.patches import Patch
 
-from save import *
-from constants import ACTIVITIES, AVERAGE_DAY, DAYS_OF_WEEK, START_DAY
-from constants import h, m, s
+import save
+from constants import *
+
+# Check if there are colors for all activities
+for activity in save.activities:
+    if activity not in ACTIVITIES:
+        print(f"Занятия {B}{activity}{W} нет в списке активностей!")
+
+if set(save.activities.keys()) != set(ACTIVITIES.keys()):
+    exit()
 
 # Because colors in matplotlib should be in 0-1 range
 for activity in ACTIVITIES:
     ACTIVITIES[activity] = [rgb/255 for rgb in ACTIVITIES[activity]]
-ALL_EXPERIMENT_TIME = sum([sum(activities[i]) for i in activities])
+ALL_EXPERIMENT_TIME = sum([sum(save.activities[i]) for i in save.activities])
 
-for activity in activities:
-    AVERAGE_DAY[activity] = sum(activities[activity])
+for activity in save.activities:
+    AVERAGE_DAY[activity] = sum(save.activities[activity])
     print(f'{activity}: {round(AVERAGE_DAY[activity]/h,2)}ч')
 
 fig, axs = plt.subplot_mosaic([['main'],
@@ -33,9 +40,9 @@ def bar_constructor(x, y):
         ax[0][1].text((y/2+offset), x, f'{round(y/h) if round(y/h, 1) == round(y/h) else round(y/h, 1)}ч', va='center', ha='center')
     offset += y
 
-for i in range(len(activities_log)):
-    activity = activities_log[i]
-    if i != len(activities_log) - 1: next_activity_time = datetime.strptime(activities_log[i+1][1], "%H:%M:%S")
+for i in range(len(save.activities_log)):
+    activity = save.activities_log[i]
+    if i != len(save.activities_log) - 1: next_activity_time = datetime.strptime(save.activities_log[i+1][1], "%H:%M:%S")
     this_activity_time = datetime.strptime(activity[1], "%H:%M:%S")
     
     activity_max_time = datetime.strptime("23:59:59", "%H:%M:%S")
@@ -43,9 +50,9 @@ for i in range(len(activities_log)):
 
     if not i: offset = (this_activity_time - activity_min_time).total_seconds() + 1
 
-    if i == len(activities_log) - 1 or next_activity_time > this_activity_time:
-        bar_constructor(days, activities[activity[0]][0])
-        activities[activity[0]].pop(0)
+    if i == len(save.activities_log) - 1 or next_activity_time > this_activity_time:
+        bar_constructor(days, save.activities[activity[0]][0])
+        save.activities[activity[0]].pop(0)
 
     else:
         bar_constructor(days, (activity_max_time - this_activity_time).total_seconds() + 1)
@@ -54,9 +61,9 @@ for i in range(len(activities_log)):
         days += 1
         offset = 0
 
-        if i != len(activities_log) - 1:
+        if i != len(save.activities_log) - 1:
             bar_constructor(days, (next_activity_time - activity_min_time).total_seconds())
-        activities[activity[0]].pop(0)
+        save.activities[activity[0]].pop(0)
 
 ax[0][1].set_yticks(x, [DAYS_OF_WEEK[(i+START_DAY)%7] for i in range(len(x))])
 ax[0][1].set_ylim(-.2, len(x) + .5)
