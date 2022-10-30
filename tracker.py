@@ -10,8 +10,8 @@ displaced_time = 0
 activities_log = []
 
 activities = {}
-for activity in ACTIVITIES:
-    activities |= {activity: []}
+for activity_name in ACTIVITIES:
+    activities |= {activity_name: []}
 
 open('save.py', 'a')
 from save import *
