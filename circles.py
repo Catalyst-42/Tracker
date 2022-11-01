@@ -7,6 +7,7 @@ from PIL import Image
 import save
 from constants import *
 
+
 # Check if there are colors for all activities
 for activity in save.activities:
     if activity not in ACTIVITIES:

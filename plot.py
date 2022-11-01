@@ -5,7 +5,6 @@ import save
 from datetime import datetime
 
 from matplotlib.patches import Patch
-from rich import print
 
 from constants import *
 
@@ -13,7 +12,7 @@ from constants import *
 # Check if there are colors for all activities
 for activity in save.activities:
     if activity not in ACTIVITIES:
-        print(f"Занятия [blue]{activity}[/] нет в списке активностей!")
+        print(f"Занятия {B}{activity}{W} нет в списке активностей!")
 
 if set(save.activities.keys()) != set(ACTIVITIES.keys()):
     exit()

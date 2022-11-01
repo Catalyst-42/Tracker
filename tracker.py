@@ -1,12 +1,7 @@
 import time
 import os
 
-from datetime import (
-    datetime, 
-    timedelta
-)
-
-from rich import print
+from datetime import datetime, timedelta
 
 from constants import *
 
@@ -32,8 +27,8 @@ def data_save():
 
 # error cheking
 if sum(len(activities[activity]) for activity in activities) < len(activities_log):
-    print(f"Обнаружена ошибка в данных: {activities_log[-1]}")
-    input(f"Добавление времени: [cyan]+{timedelta(seconds=int(time.time() - timestamp))}[/]\n")
+    print(f"Обнаружена ошибка в данных: {activities_log[-1][0]} ({activities_log[-1][1]})")
+    input(f"Добавление времени: {C}+{timedelta(seconds=int(time.time() - timestamp))}{W}\n")
 
     activity_name = activities_log[-1][0] 
     activities[activity_name].append(time.time() - timestamp)
@@ -60,7 +55,7 @@ def stages_formatter(stages, verb=0):
 # analytycs
 def analytycs():
     sum_all = sum(sum(activities[activity]) for activity in activities)
-    print(f"Итоги {stages_formatter(activity-1, 1)} ([cyan]{timedelta(seconds=round(sum_all))}[/])")
+    print(f"Итоги {stages_formatter(activity-1, 1)} ({C}{timedelta(seconds=round(sum_all))}{W})")
 
     if sum_all == 0: return
 
@@ -73,28 +68,28 @@ def analytycs():
         activity_mean = activity_time / activity_counter
 
         print(f"{activity_name} ({stages_formatter(activity_counter)}) ({round(activity_percentage, 2)}%)")
-        print(f"Всего: [cyan]{timedelta(seconds=round(activity_time))}[/]")
-        print(f"В среднем [cyan]{timedelta(seconds=round(activity_mean))}[/] за этап\n")
+        print(f"Всего: {C}{timedelta(seconds=round(activity_time))}{W}")
+        print(f"В среднем {C}{timedelta(seconds=round(activity_mean))}{W} за этап\n")
 
 # main loop
 while True:
     os.system("clear")
 
-    stageline = f"Этап [magenta]{activity}[/], ({datetime.fromtimestamp(timestamp).strftime('%H:%M:%S')}) "
+    stageline = f"Этап {M}{activity}{W}, ({datetime.fromtimestamp(timestamp).strftime('%H:%M:%S')}) "
 
     if len(activities_log):
-        stageline += f"([cyan]{timedelta(seconds=round(activities[activities_log[-1][0]][-1]))}[/])"
+        stageline += f"({C}{timedelta(seconds=round(activities[activities_log[-1][0]][-1]))}{W})"
 
     print(stageline)
     print("Выбор занятия:")
 
     for i, name in enumerate(activities):
-        print(f"[green]{i+1}[/]: {name}")
+        print(f"{G}{i+1}{W}: {name}")
 
     print()
 
     for i, name in enumerate(["Завершить сессию", "Удалить последнее занятие", "Изменить время последнего занятия", "Добавить новое занятие"]):
-        print(f"[green]{'edca'[i]}[/]: {name}")
+        print(f"{G}{'edca'[i]}{W}: {name}")
     
     session_id = input("\nНомер занятия: ")
 
@@ -120,7 +115,7 @@ while True:
         # displaced time check
         if displaced_time:
             timestamp -= displaced_time
-            print(f"Обнаружено нераспределённое время ([cyan]{timedelta(seconds=round(displaced_time))}[/])")
+            print(f"Обнаружено нераспределённое время ({C}{timedelta(seconds=round(displaced_time))}{W})")
             print(f"Изменение текущего занятия -> {activity_name} ({datetime.fromtimestamp(timestamp).strftime('%H:%M:%S')})")
             
             displaced_time = 0
@@ -154,22 +149,26 @@ while True:
             displaced_time = activities[activities_log.pop()[0]].pop()
             activity -= 1
         else:
-            input(f"[red]\nУдаление отменено[/]")
+            input(f"\n{R}Удаление отменено{W}")
 
     # change last activity time
     if session_id == len(activities) + 3:
         activity_name = activities_log[-1][0]
-        activity_time = activities[activity_name][-1]
+        activity_start_time = activities_log[-1][1]
+
+        activity_lasts = timedelta(seconds=round(activities[activity_name][-1]))
 
         try: 
-            displaced_time += eval(input(f"{activities_log[-1][0]}({activities_log[-1][1]}) [cyan]{timedelta(seconds=round(activity_time))}[/] \nОтнять секунд: "))
+            displaced_time += eval(
+                input(f"{activity_name} ({activity_start_time}) {C}{activity_lasts}{W} \nОтнять секунд: ")
+            )
         except: 
-            input(f"[red]\nОшибка ввода[/]")
+            input(f"\n{R}Ошибка ввода{W}")
         activities[activity_name][-1] -= displaced_time
 
     if session_id == len(activities) + 4:
         activity_name = input("Название нового занятия: ")
-        if activity_name not in activities:
+        if activity_name not in activities and activity_name != "":
             activities = activities | {activity_name: []}
 
     data_save()
