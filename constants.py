@@ -21,7 +21,7 @@ AVERAGE_DAY = {}
 for activity_name in ACTIVITIES:
     AVERAGE_DAY |= {activity_name: [0]}
 
-# Plot balues
+# Plot values
 PLOT_WIDTH = 9
 PLOT_START_HEIGTH = 2.2
 PLOT_HEIGTH_STEP = 0.25

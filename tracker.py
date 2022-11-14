@@ -20,13 +20,13 @@ open("save.py", "a")
 
 from save import *
 
-def data_save():
+def data_save(saved=True):
     file = open("save.py", "w")
-    file.write(f"{timestamp=} \n{activity=} \n{displaced_time=} \n{activities_log=} \n{activities=} ")
+    file.write(f"{timestamp=} \n{saved=} \n{activity=} \n{displaced_time=} \n{activities_log=} \n{activities=} \n")
     file.close()
 
 # error cheking
-if sum(len(activities[activity]) for activity in activities) < len(activities_log):
+if saved == False:
     print(f"Обнаружена ошибка в данных: {activities_log[-1][0]} ({activities_log[-1][1]})")
     input(f"Добавление времени: {C}+{timedelta(seconds=int(time.time() - timestamp))}{W}\n")
 
@@ -95,7 +95,7 @@ while True:
 
     if session_id.isdigit(): 
         session_id = int(session_id)
-    elif session_id in ("e", "d", "c", "a"):
+    elif session_id in ('e', 'd', 'c', 'a'):
         session_id = len(activities) + "edca".index(session_id) + 1
     else:
         session_id = 0
@@ -120,11 +120,11 @@ while True:
             
             displaced_time = 0
 
-        # create new activity if it"s not repeat
+        # create new activity if it's not repeat
         if not activity_repeat:
             activities_log.append((f"{activity_name}", f"{datetime.fromtimestamp(timestamp).strftime('%H:%M:%S')}"))
         
-        data_save()
+        data_save(saved=False)
         input(f"<< {activity_name} >>")
 
         # add time to activity
