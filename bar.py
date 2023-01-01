@@ -6,7 +6,6 @@ from datetime import datetime
 from matplotlib.patches import Patch
 from constants import *
 
-
 # Check if there are colors for all activities
 not_in = []
 for activity in save.activities:
@@ -27,13 +26,14 @@ for i, activity in enumerate(save.activities):
 
 # Because colors in matplotlib should be in 0-1 range
 for activity in ACTIVITIES:
-    ACTIVITIES[activity] = [rgb/255 for rgb in ACTIVITIES[activity]]
+    ACTIVITIES[activity] = tuple([rgb/255 for rgb in ACTIVITIES[activity]])
 
 AVERAGE_DAY = {}
 for activity_name in ACTIVITIES:
     AVERAGE_DAY |= {activity_name: [0]}
 
-START_DAY = datetime.fromtimestamp(save.activities[0]).weekday()
+
+START_DAY = datetime.fromtimestamp(save.activities[0][1]).weekday()
 ALL_EXPERIMENT_TIME = sum([sum(activities_times[i]) for i in activities_times])
 EXPERIMENT_START_TIME = save.activities[0][1]
 
@@ -59,7 +59,7 @@ days = 1
 def bar_constructor(x, y):
     global offset
 
-    ax[0][1].bar(x, y, bottom=offset, width=1, edgecolor="black", linewidth=.5, color=ACTIVITIES[activity[0]], label=activity[-1])
+    ax[0][1].bar(x, y, width=1, bottom=offset, edgecolor="black", linewidth=.5, color=ACTIVITIES[activity[0]], label=activity[-1])
 
     if y >= .9*h:
         ax[0][1].text(x, (y/2+offset), f"{round(y/h) if round(y/h, 1) == round(y/h) else round(y/h, 1)}ч", va="center", ha="center", clip_on=True)
@@ -81,7 +81,7 @@ for i in range(len(save.activities)):
     
     # first bar
     if not i:
-        offset = (this_activity_time - activity_min_time).total_seconds() + 1
+        offset = (this_activity_time - activity_min_time).total_seconds()
 
     # create one bar
     if activities_times[activity[0]][0] <= 24*h - offset:
@@ -113,8 +113,8 @@ ax[0][1].invert_yaxis()
 ax[0][1].set_ylim(0, 24*h)
 ax[0][1].set_yticks([i*864 for i in range(0, 101, 10)], [f"{i}%" for i in range(0, 101, 10)])
 
-ax[0][1].xaxis.set_major_formatter(lambda y, _: DAYS_OF_WEEK[(int(y-.5)+START_DAY)%7])
-ax[0][1].yaxis.set_major_formatter(lambda x, _: f"{round(x/h) if round(x/h, 1) == round(x/h) else round(x/h, 1)}ч")
+ax[0][1].xaxis.set_major_formatter(lambda x, _: DAYS_OF_WEEK[(int(x-.5)+START_DAY)%7])
+ax[0][1].yaxis.set_major_formatter(lambda y, _: f"{round(y/h) if round(y/h, 1) == round(y/h) else round(y/h, 1)}ч")
 
 def format_coord(y, x):
     x = round(x/h) if round(x/h, 1) == round(x/h) else round(x/h, 1)

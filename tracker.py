@@ -1,19 +1,19 @@
-import time
-import os
-
 from datetime import datetime, timedelta
+from os import system, makedirs, path
+from time import time
 from constants import *
 
-timestamp = time.time()
 saved = True
+timestamp = time()
 activities = []
 
-open("save.py", "a")
+open("save.py", "a") # touch save file
 from save import *
 
 weeks = (timestamp - activities[0][1]) // (7*24*h) if activities else 0
 def data_save(saved=True):
-    global weeks
+    if len(activities) == 0: return
+
     file = open("save.py", "w")
     
     file.write(f"{saved = }\n{timestamp = }\nactivities = [ \n")
@@ -23,11 +23,13 @@ def data_save(saved=True):
     file.close()
 
     # weekly dump
-    if len(activities) and saved and (timestamp - activities[0][1]) // (7*24*h) > weeks:
+    global weeks
+    if saved and (timestamp - activities[0][1]) // (7*24*h) > weeks:
         weeks += 1
 
         filename = f"./dumps/week-{round(weeks)} ({activities[-1][2][:10]}).py"
-        os.makedirs(os.path.dirname(filename), exist_ok=True)
+        makedirs(path.dirname(filename), exist_ok=True)
+
         file = open(filename, "w")
 
         file.write(f"{saved = }\ntimestamp = {activities[0][1] + weeks * 7*24*h}\nactivities = [ \n")
@@ -36,31 +38,23 @@ def data_save(saved=True):
 
         file.close()
 
-# error cheking
-if saved == False:
-    print(f"Предыдущая сессия была прервана: {activities[-1][0]} ({activities[-1][2]})")
-    input(f"Добавление времени: {C}+{timedelta(0, int(time.time() - timestamp))}{W}\n")
-    
-    timestamp = time.time()
-    data_save()
-
 def stages_formatter(stages, verb=0):
     form =  ["этапа", "этапов", "этапов"] if verb else ["этап", "этапа", "этапов"]
 
     if int(str(stages)[-1]) == 1 and stages != 11: 
-        return f"{stages} {form[0]}"
+        return f"{M}{stages}{W} {form[0]}"
     
     if 1 <= int(str(stages)[-1]) <= 4 and (stages < 10 or stages > 20):
-        return f"{stages} {form[1]}"
+        return f"{M}{stages}{W} {form[1]}"
     
     else:
-        return f"{stages} {form[2]}"
+        return f"{M}{stages}{W} {form[2]}"
 
 def analytics():
-    sum_all = timestamp - activities[0][1]
-    print(f"Итоги {stages_formatter(len(activities)-1, 1)} ({C}{timedelta(0, round(sum_all))}{W})")
+    if len(activities) == 0: return
 
-    if sum_all == 0: return
+    sum_all = timestamp - activities[0][1]
+    print(f"Итоги {stages_formatter(len(activities), 1)} ({C}{timedelta(0, round(sum_all))}{W})")
 
     # dict of times
     activities_times = {}
@@ -83,8 +77,17 @@ def analytics():
         print(f"Всего: {C}{timedelta(0, round(activity_time))}{W}")
         print(f"В среднем {C}{timedelta(0, round(activity_mean))}{W} за этап\n")
 
+# error cheking
+if saved == False:
+    input(f"Последняя сессия была прервана: {activities[-1][0]} ({activities[-1][2]})")
+    input(f"Добавление потерянного времени: {C}+{timedelta(0, int(time() - timestamp))}{W}\n")
+    
+    timestamp = time()
+    data_save()
+
+# main loop
 while True:
-    os.system("clear")
+    system("clear")
     activity = len(activities) + 1
 
     stageline = f"Этап {M}{activity}{W}, ({datetime.fromtimestamp(timestamp).strftime('%H:%M:%S')}) "
@@ -121,7 +124,7 @@ while True:
         activity_name = list(ACTIVITIES.keys())[session_id-1]
 
         # if activity repeat
-        if len(activities) > 0 and activity_name == activities[-1][0]:
+        if len(activities) and activity_name == activities[-1][0]:
             print(f"Продолжение предудущей сессии -> {activities[-1][0]} ({activities[-1][2]})")
 
         else:
@@ -138,7 +141,7 @@ while True:
         data_save(saved=False)
         input(f"<< {activity_name} >>")
 
-        timestamp = time.time()
+        timestamp = time()
     
     # end sesstion
     if session_id == len(ACTIVITIES) + 1:

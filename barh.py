@@ -26,13 +26,13 @@ for i, activity in enumerate(save.activities):
 
 # Because colors in matplotlib should be in 0-1 range
 for activity in ACTIVITIES:
-    ACTIVITIES[activity] = [rgb/255 for rgb in ACTIVITIES[activity]]
+    ACTIVITIES[activity] = tuple([rgb/255 for rgb in ACTIVITIES[activity]])
 
 AVERAGE_DAY = {}
 for activity_name in ACTIVITIES:
     AVERAGE_DAY |= {activity_name: [0]}
 
-START_DAY = datetime.fromtimestamp(save.activities[0]).weekday()
+START_DAY = datetime.fromtimestamp(save.activities[0][1]).weekday()
 ALL_EXPERIMENT_TIME = sum([sum(activities_times[i]) for i in activities_times])
 EXPERIMENT_START_TIME = save.activities[0][1]
 
@@ -42,8 +42,8 @@ for activity in activities_times:
     print(f"{activity}: {round(AVERAGE_DAY[activity]/h,2)}ч")
 
 fig, axs = plt.subplot_mosaic(
-    [["main"], ["average"]], 
-    figsize = (PLOT_WIDTH, PLOT_START_HEIGTH+ALL_EXPERIMENT_TIME//(24*h)*PLOT_HEIGTH_STEP if FULL else PLOT_START_HEIGTH+14*PLOT_HEIGTH_STEP), 
+    (("main",), ("average",)),
+    figsize = (PLOT_WIDTH, PLOT_START_HEIGTH+ALL_EXPERIMENT_TIME//(24*h)*PLOT_HEIGTH_STEP if FULL else PLOT_START_HEIGTH+14*PLOT_HEIGTH_STEP),
     gridspec_kw = {"height_ratios": [(ALL_EXPERIMENT_TIME//(24*h) + 2 if ALL_EXPERIMENT_TIME >= 48*h else 2) if FULL else 14, 1]}
 )
 
@@ -58,7 +58,7 @@ days = 1
 def bar_constructor(x, y):
     global offset
 
-    ax[0][1].barh(x, y, left=offset, height=1, edgecolor="black", linewidth=.5, color=ACTIVITIES[activity[0]], label=activity[-1])
+    ax[0][1].barh(x, y, height=1, left=offset, edgecolor="black", linewidth=.5, color=ACTIVITIES[activity[0]], label=activity[-1])
 
     if y >= .9*h:
         ax[0][1].text((y/2+offset), x, f"{round(y/h) if round(y/h, 1) == round(y/h) else round(y/h, 1)}ч", va="center", ha="center", clip_on=True)
@@ -80,7 +80,7 @@ for i in range(len(save.activities)):
     
     # first bar
     if not i:
-        offset = (this_activity_time - activity_min_time).total_seconds() + 1
+        offset = (this_activity_time - activity_min_time).total_seconds()
 
     # create one bar
     if activities_times[activity[0]][0] <= 24*h - offset:
