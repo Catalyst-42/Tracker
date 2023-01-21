@@ -7,14 +7,14 @@ from matplotlib.patches import Patch
 from constants import *
 
 # Check if there are colors for all activities
-not_in = []
+heap = []
 for activity in save.activities:
-    if activity[0] not in ACTIVITIES and activity[0] not in not_in:
+    if activity[0] not in ACTIVITIES and activity[0] not in heap:
         print(f"Занятия {B}{activity[0]}{W} нет в списке активностей!")
-        not_in.append(activity[0])
+        heap.append(activity[0])
 
-if len(not_in): exit()
-del not_in
+if len(heap): exit()
+del heap
 
 # dict of times
 activities_times = {}
@@ -30,16 +30,22 @@ for activity in ACTIVITIES:
 
 AVERAGE_DAY = {}
 for activity_name in ACTIVITIES:
-    AVERAGE_DAY |= {activity_name: [0]}
+    if activity_name == "Void": continue
+    AVERAGE_DAY |= {activity_name: 0}
 
 START_DAY = datetime.fromtimestamp(save.activities[0][1]).weekday()
-ALL_EXPERIMENT_TIME = sum([sum(activities_times[i]) for i in activities_times])
 EXPERIMENT_START_TIME = save.activities[0][1]
+ALL_EXPERIMENT_TIME = sum([sum(activities_times[i]) for i in activities_times])
 
+if EXCLUDE_VOIDS and "Void" in ACTIVITIES: ALL_EXPERIMENT_TIME -= sum(activities_times["Void"])
+
+# print hours and percentages
 print(f"Всего: {round(ALL_EXPERIMENT_TIME / h, 1)}ч\n")
 for activity in activities_times:
+    if activity == "Void": continue
+
     AVERAGE_DAY[activity] = sum(activities_times[activity])
-    print(f"{activity}: {round(AVERAGE_DAY[activity]/h,2)}ч")
+    print(f"{activity}: {round(AVERAGE_DAY[activity]/h,2)}ч ({round(AVERAGE_DAY[activity]/ALL_EXPERIMENT_TIME * 100, 1)}%)")
 
 fig, axs = plt.subplot_mosaic(
     (("main",), ("average",)),
@@ -57,14 +63,15 @@ days = 1
 # First plot - distribution for all days
 def bar_constructor(x, y):
     global offset
-
-    ax[0][1].barh(x, y, height=1, left=offset, edgecolor="black", linewidth=.5, color=ACTIVITIES[activity[0]], label=activity[-1])
-
-    if y >= .9*h:
-        ax[0][1].text((y/2+offset), x, f"{round(y/h) if round(y/h, 1) == round(y/h) else round(y/h, 1)}ч", va="center", ha="center", clip_on=True)
-
+    
     offset += y
+    if activity[0] == 'Void': return
+    
+    ax[0][1].barh(x, y, height=1, left=offset-y, edgecolor="black", linewidth=.5, color=ACTIVITIES[activity[0]], label=activity[-1])
+    if y >= .9*h:
+        ax[0][1].text((y/2+offset-y), x, f"{round(y/h) if round(y/h, 1) == round(y/h) else round(y/h, 1)}ч", va="center", ha="center", clip_on=True)
 
+# generate all parts and add it to plot
 for i in range(len(save.activities)):
     activity = save.activities[i]
 
@@ -133,7 +140,6 @@ def format_coord(x, y):
     else: return f"\n{x=}ч, y={DAYS_OF_WEEK[(y+START_DAY)%7]} {week}"
 
 ax[0][1].format_coord = format_coord
-
 legend_elements = [*[Patch(facecolor=ACTIVITIES[i], edgecolor="black", linewidth=.5, label=i) for i in AVERAGE_DAY]]
 ax[0][1].legend(handles=legend_elements, ncol=LABELS_IN_ROW, loc="upper left")
 
@@ -158,6 +164,6 @@ ax[1][1].yaxis.set_major_formatter(lambda *_: "AV")
 ax[1][1].xaxis.set_major_formatter(mtick.PercentFormatter(ALL_EXPERIMENT_TIME))
 
 plt.tight_layout()
-plt.savefig(f"plot_barh.png", bbox_inches="tight")
+plt.savefig(f"plot.png", bbox_inches="tight")
 
 plt.show()

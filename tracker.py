@@ -61,6 +61,7 @@ def analytics():
     for activity_name in ACTIVITIES: activities_times |= {activity_name: []}
     
     for i, activity in enumerate(activities):
+        if activity[0] == "Void": continue
         pivot = activities[i+1][1] if i < len(activities) - 1 else timestamp
         activities_times[activity[0]].append(pivot - activity[1])
 
@@ -87,20 +88,20 @@ if saved == False:
 
 # main loop
 while True:
-    system("clear")
+    system(CLEAR)
+
+    # Header
     activity = len(activities) + 1
-
     stageline = f"Этап {M}{activity}{W}, ({datetime.fromtimestamp(timestamp).strftime('%H:%M:%S')}) "
-
-    if len(activities):
-        stageline += f"({C}{timedelta(0, round(timestamp - activities[-1][1]))}{W})"
+    if len(activities): stageline += f"({C}{timedelta(0, round(timestamp - activities[-1][1]))}{W})"
 
     print(stageline)
-    print("Выбор занятия:")
 
+    # Activities
+    print("Выбор занятия:")
     for i, name in enumerate(ACTIVITIES):
         print(f"{G}{i+1}{W}: {name}")
-
+    
     print()
 
     for i, name in enumerate([
@@ -111,8 +112,8 @@ while True:
     ]):
         print(f"{G}{'edci'[i]}{W}: {name}")
     
+    # Gain input
     session_id = input("\nНомер занятия: ")
-
     if session_id.isdigit(): session_id = int(session_id)
     elif session_id in ('e', 'd', 'c', 'i'): session_id = len(ACTIVITIES) + "edci".index(session_id) + 1
     else: session_id = 0
@@ -140,7 +141,7 @@ while True:
         
         data_save(saved=False)
         input(f"<< {activity_name} >>")
-
+        
         timestamp = time()
     
     # end sesstion

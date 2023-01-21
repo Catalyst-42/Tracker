@@ -8,7 +8,7 @@ import save
 from constants import *
 
 # Check if there are colors for all activities
-not_in = []
+not_in = ["Void"]
 for activity in save.activities:
     if activity[0] not in ACTIVITIES and activity[0] not in not_in:
         print(f"Занятия {B}{activity[0]}{W} нет в списке активностей!")
@@ -33,7 +33,8 @@ days = 0
 
 for i, x in enumerate(save.activities):
     activity, _, data, _ = x
-    
+    if activity == "Void": continue
+
     x = (datetime.strptime(data, "%d.%m.%Y %H:%M:%S") - datetime.strptime(data[:10] + " 00:00:00", "%d.%m.%Y %H:%M:%S"))
     x = (x.total_seconds() + 1 ) / h
     
