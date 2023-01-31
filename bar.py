@@ -37,6 +37,13 @@ START_DAY = datetime.fromtimestamp(save.activities[0][1]).weekday()
 EXPERIMENT_START_TIME = save.activities[0][1]
 ALL_EXPERIMENT_TIME = sum([sum(activities_times[i]) for i in activities_times])
 
+fig, axs = plt.subplot_mosaic(
+    [["main", "average"]],
+    figsize = (PLOT_START_WIDTH + ALL_EXPERIMENT_TIME//(24*h)*PLOT_WIDTH_STEP if FULL else PLOT_WIDTH, PLOT_HEIGTH), 
+    gridspec_kw = {"width_ratios": [(ALL_EXPERIMENT_TIME//(24*h) + 2 if ALL_EXPERIMENT_TIME >= 48*h else 2) if FULL else 14, 1]}
+)
+
+fig.canvas.manager.set_window_title("Распределение времени")
 if EXCLUDE_VOIDS and "Void" in ACTIVITIES: ALL_EXPERIMENT_TIME -= sum(activities_times["Void"])
 
 # print hours and percentages
@@ -46,14 +53,6 @@ for activity in activities_times:
     
     AVERAGE_DAY[activity] = sum(activities_times[activity])
     print(f"{activity}: {round(AVERAGE_DAY[activity]/h,2)}ч ({round(AVERAGE_DAY[activity]/ALL_EXPERIMENT_TIME * 100, 1)}%)")
-
-fig, axs = plt.subplot_mosaic(
-    [["main", "average"]],
-    figsize = (PLOT_START_WIDTH + ALL_EXPERIMENT_TIME//(24*h)*PLOT_WIDTH_STEP if FULL else PLOT_WIDTH, PLOT_HEIGTH), 
-    gridspec_kw = {"width_ratios": [(ALL_EXPERIMENT_TIME//(24*h) + 2 if ALL_EXPERIMENT_TIME >= 48*h else 2) if FULL else 14, 1]}
-)
-
-fig.canvas.manager.set_window_title("Распределение времени")
 
 ax = list(axs.items())
 x = [1]
