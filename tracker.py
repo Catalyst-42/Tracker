@@ -112,7 +112,7 @@ while True:
     ]):
         print(f"{G}{'edci'[i]}{W}: {name}")
     
-    # Gain input
+    # gain input
     session_id = input("\nНомер занятия: ")
     if session_id.isdigit(): session_id = int(session_id)
     elif session_id in ('e', 'd', 'c', 'i'): session_id = len(ACTIVITIES) + "edci".index(session_id) + 1
@@ -167,7 +167,7 @@ while True:
 
         try: 
             print(f"Изменение предыдущего занятия\n{activity_name} ({activity_start_time}) {C}{activity_lasts}{W}")
-            activities[-1][1] += eval(input("\nОтнять секунд: "))
+            activities[-1][1] += eval(input("\nОтнять секунд (этап начался позже): "))
             activities[-1][2] = (datetime.fromtimestamp(activities[-1][1])).strftime('%d.%m.%Y %H:%M:%S')
         except: 
             input(f"\n{R}Ошибка ввода{W}")
