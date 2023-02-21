@@ -2,35 +2,36 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as mtick
 import save
 
+from math import ceil
 from datetime import datetime
 from matplotlib.patches import Patch
 from constants import *
 
 # Check if there are colors for all activities
-heap = []
-for activity in save.activities:
-    if activity[0] not in ACTIVITIES and activity[0] not in heap:
-        print(f"Занятия {B}{activity[0]}{W} нет в списке активностей!")
-        heap.append(activity[0])
+force_exit = False
+save_activities = set([i[0] for i in save.activities])
 
-if len(heap): exit()
-del heap
+for activity in save_activities:
+    if activity not in ACTIVITIES:
+        print(f"Занятия {B}{activity}{W} нет в списке активностей!")
+        force_exit = True
+
+if force_exit: exit()
+del force_exit
 
 # dict of times
 activities_times = {}
-for activity_name in ACTIVITIES: activities_times |= {activity_name: []}
+for activity_name in ACTIVITIES: 
+    if activity_name in save_activities:
+        activities_times |= {activity_name: []}
 
 for i, activity in enumerate(save.activities):
     pivot = save.activities[i+1][1] if i < len(save.activities) - 1 else save.timestamp
     activities_times[activity[0]].append(pivot - activity[1])
 
-# Because colors in matplotlib should be in 0-1 range
-for activity in ACTIVITIES:
-    ACTIVITIES[activity] = tuple([rgb/255 for rgb in ACTIVITIES[activity]])
-
 AVERAGE_DAY = {}
 for activity_name in ACTIVITIES:
-    if activity_name == "Void": continue
+    if activity_name == "Void" or activity_name not in save_activities: continue
     AVERAGE_DAY |= {activity_name: 0}
 
 START_DAY = datetime.fromtimestamp(save.activities[0][1]).weekday()
@@ -112,8 +113,11 @@ for i in range(len(save.activities)):
 
     activities_times[activity[0]].pop(0)
 
+# frame by last 2 weeks if not FULL
+view_shift = ceil(ALL_EXPERIMENT_TIME // (24*h)) - 13.5 if ceil(ALL_EXPERIMENT_TIME // (7*24*h)) > 2 else .5
+
 ax[0][1].set_xticks(x, [DAYS_OF_WEEK[(i+START_DAY)%7] for i in range(len(x))])
-ax[0][1].set_xlim(0.5, len(x) + .5 if FULL else 14.5)
+ax[0][1].set_xlim(.5 if FULL else view_shift, len(x) + .5 if FULL else 15 + view_shift)
 ax[0][1].invert_yaxis()
 ax[0][1].set_ylim(0, 24*h)
 ax[0][1].set_yticks([i*864 for i in range(0, 101, 10)], [f"{i}%" for i in range(0, 101, 10)])

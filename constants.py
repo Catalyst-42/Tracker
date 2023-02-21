@@ -7,11 +7,11 @@ m = 60
 h = 3600
 
 UTC_OFFSET = -timezone
-DAYS_OF_WEEK = ('ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'ВС')
+DAYS_OF_WEEK = ('Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс')
 
 # Tracker settings
 CLEAR = "cls" if platform() == "Windows" else "clear"
-EXCLUDE_VOIDS = True # exclude void time from total time (and AV plot)
+EXCLUDE_VOIDS = False # exclude void time from total time (and AV plot)
 ACTIVITIES = {
     "Сон": (31, 119, 180),
     "Отдых": (255, 127, 14),
@@ -19,15 +19,20 @@ ACTIVITIES = {
     "Метро": (214, 39, 40),
     "Домашка": (149, 103, 189),
     "Другое": (140, 86, 75),
-    # "Void": (0, 0, 0) # empty time
-    
+
+    # "Void": (0, 0, 0), # empty time
+
     # Activity name: activity color (for plots, rgb)
     # Can be expanded with custom activities
     # Order determines plot of average day
 }
 
+# Because colors in matplotlib should be in 0-1 range
+for activity in ACTIVITIES:
+    ACTIVITIES[activity] = tuple([rgb/255 for rgb in ACTIVITIES[activity]])
+
 # Plot settings
-FULL = True # display the entire plot or frame it by 2 weeks
+FULL = False # display the entire plot or frame it by 2 weeks
 PLOT_WIDTH = 9
 PLOT_HEIGTH = 5.7
 
@@ -36,8 +41,6 @@ PLOT_START_WIDTH = 3.5
 
 PLOT_HEIGTH_STEP = 0.25
 PLOT_WIDTH_STEP = 0.45
-
-PLOT_START_DAY_OFFSET = 0.0
 LABELS_IN_ROW = len(ACTIVITIES)
 
 # Circles settings
