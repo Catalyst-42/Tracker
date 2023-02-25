@@ -114,7 +114,8 @@ for i in range(len(save.activities)):
     activities_times[activity[0]].pop(0)
 
 # frame by last 2 weeks if not FULL
-view_shift = ceil(ALL_EXPERIMENT_TIME // (24*h)) - 13.5 if ceil(ALL_EXPERIMENT_TIME // (7*24*h)) > 2 else 0
+start_hour = EXPERIMENT_START_TIME%(24*3600) + UTC_OFFSET
+view_shift = ceil((ALL_EXPERIMENT_TIME+start_hour) // (24*h)) - 13.5 if ceil(ALL_EXPERIMENT_TIME // (7*24*h)) > 2 else 0
 
 ax[0][1].set_yticks(x, [DAYS_OF_WEEK[(i+START_DAY)%7] for i in range(len(x))])
 ax[0][1].set_ylim(0 if FULL else view_shift, len(x) + .5 if FULL else 15 + view_shift)
