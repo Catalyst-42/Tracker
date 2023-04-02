@@ -126,11 +126,13 @@ while True:
 
         # if activity repeat
         if len(activities) and activity_name == activities[-1][0]:
-            print(f"Продолжение предудущей сессии -> {activities[-1][0]} ({activities[-1][2]})")
+            print(f"Продолжение предыдущей сессии -> {activities[-1][0]} ({activities[-1][2]})")
+            note = activities[-1][3]
 
         else:
             note = ''
-            if activity_name == 'Другое': note = input("Подпись: ") or 'Магазин'
+            if activity_name == 'Другое':
+                note = input("Подпись: ") or (ANOTHER_DEFAULT_NOTE)
 
             activities.append([
                 f"{activity_name}", 
@@ -140,7 +142,7 @@ while True:
             ])
         
         data_save(saved=False)
-        input(f"<< {activity_name} >>")
+        input(f"<< {activity_name}{'' if not note else ' (' + note + ')'} >>")
         
         timestamp = time()
     
@@ -164,13 +166,22 @@ while True:
         activity_start_time = activities[-1][2]
 
         activity_lasts = timedelta(0, round(timestamp - activities[-1][1]))
-
+        print(f"Последний этап: {activity_name} ({activity_start_time}) {C}{activity_lasts}{W}")
+        
         try: 
-            print(f"Изменение предыдущего занятия\n{activity_name} ({activity_start_time}) {C}{activity_lasts}{W}")
-            activities[-1][1] += eval(input("\nОтнять секунд (этап начался позже): "))
-            activities[-1][2] = (datetime.fromtimestamp(activities[-1][1])).strftime('%d.%m.%Y %H:%M:%S')
-        except: 
-            input(f"\n{R}Ошибка ввода{W}")
+            allocated_time = eval(input("Этап закончился раньше на: "))
+            
+            if allocated_time < activity_lasts.total_seconds():
+                timestamp -= allocated_time
+
+                activity_lasts = timedelta(0, round(timestamp - activities[-1][1]))
+                input(f"\nНовая продолжительность этапа: {C}{activity_lasts}{W}")
+
+            else:
+                input(f"\n{R}Этап становится отрицательным, действие отменено{W}")
+        
+        except:
+            input(f"\n{R}Действие отменено{W}")
 
     # add a note
     if session_id == len(ACTIVITIES) + 4:

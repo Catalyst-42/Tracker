@@ -20,16 +20,14 @@ ACTIVITIES = {
     "Домашка": (149, 103, 189),
     "Другое": (140, 86, 75),
 
-    # "Void": (0, 0, 0), # empty time
+    #"Void": (0, 0, 0), # empty time
 
     # Activity name: activity color (for plots, rgb)
     # Can be expanded with custom activities
     # Order determines plot of average day
 }
 
-# Because colors in matplotlib should be in 0-1 range
-for activity in ACTIVITIES:
-    ACTIVITIES[activity] = tuple([rgb/255 for rgb in ACTIVITIES[activity]])
+ANOTHER_DEFAULT_NOTE = 'Магазин' # default note when you select `another` (другое) activity with empty note
 
 # Plot settings
 FULL = False # display the entire plot or frame it by 2 weeks
