@@ -8,14 +8,16 @@ import save
 from constants import *
 
 # Check if there are colors for all activities
-not_in = ["Void"]
-for activity in save.activities:
-    if activity[0] not in ACTIVITIES and activity[0] not in not_in:
-        print(f"Занятия {B}{activity[0]}{W} нет в списке активностей!")
-        not_in.append(activity[0])
+force_exit = False
+save_activities = set([i[0] for i in save.activities])
 
-if len(not_in): exit()
-del not_in
+for activity in save_activities:
+    if activity not in ACTIVITIES:
+        print(f"Занятия {B}{activity}{W} нет в списке активностей!")
+        force_exit = True
+
+if force_exit: exit()
+del force_exit
 
 # dict of times
 activities_times = {}

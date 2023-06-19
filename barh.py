@@ -7,6 +7,10 @@ from datetime import datetime
 from matplotlib.patches import Patch
 from constants import *
 
+# Because colors in matplotlib should be in 0-1 range
+for activity in ACTIVITIES:
+    ACTIVITIES[activity] = tuple([rgb/255 for rgb in ACTIVITIES[activity]])
+
 # Check if there are colors for all activities
 force_exit = False
 save_activities = set([i[0] for i in save.activities])
@@ -45,10 +49,14 @@ fig, axs = plt.subplot_mosaic(
 )
 
 fig.canvas.manager.set_window_title("Распределение времени")
-if EXCLUDE_VOIDS and "Void" in ACTIVITIES: ALL_EXPERIMENT_TIME -= sum(activities_times["Void"])
+
+view_shift = 0
+if EXCLUDE_VOIDS and "Void" in ACTIVITIES and "Void" in activities_times.keys(): 
+    view_shift = sum(activities_times["Void"])
+    ALL_EXPERIMENT_TIME -= sum(activities_times["Void"])
 
 # print hours and percentages
-print(f"Всего: {round(ALL_EXPERIMENT_TIME / h, 1)}ч\n")
+print(f"Всего: {round(ALL_EXPERIMENT_TIME / h, 1)}ч ({round(ALL_EXPERIMENT_TIME / (24*h), 1)}д)\n")
 for activity in activities_times:
     if activity == "Void": continue
 
@@ -114,8 +122,8 @@ for i in range(len(save.activities)):
     activities_times[activity[0]].pop(0)
 
 # frame by last 2 weeks if not FULL
-start_hour = EXPERIMENT_START_TIME%(24*3600) + UTC_OFFSET
-view_shift = ceil((ALL_EXPERIMENT_TIME+start_hour) // (24*h)) - 13.5 if ceil(ALL_EXPERIMENT_TIME // (7*24*h)) > 2 else 0
+start_hour = EXPERIMENT_START_TIME%(24*h) + UTC_OFFSET
+view_shift = ceil((view_shift+ALL_EXPERIMENT_TIME+start_hour) // (24*h)) - 13.5 if ceil((view_shift+ALL_EXPERIMENT_TIME) // (7*24*h)) > 2 else 0
 
 ax[0][1].set_yticks(x, [DAYS_OF_WEEK[(i+START_DAY)%7] for i in range(len(x))])
 ax[0][1].set_ylim(0 if FULL else view_shift, len(x) + .5 if FULL else 15 + view_shift)
