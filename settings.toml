@@ -1,0 +1,102 @@
+[activities]
+"Сон" = [31, 119, 180]
+"Отдых" = [255, 127, 14]
+"Другое" = [140, 86, 75]
+"Пары" = [44, 160, 44]
+"Метро" = [214, 39, 40]
+"Домашка" = [149, 103, 189]
+
+"Borderlands 2" = [255, 127, 14]
+"Borderlands: TPS" = [246, 216, 13]
+
+"Stone Story" = [128, 128, 128]
+"Katana Zero" = [149, 103, 189]
+"Hotline Miami 2" = [214, 39, 40]
+"Shapez" = [211, 211, 219]
+"While 1 learn" = [140, 86, 75]
+
+"Ratchet & Clank" = [49, 163, 57]
+"Ratchet & Clank: Going commando" = [31, 119, 180]
+"Ratchet & Clank: Up your arsenal" = [253, 141, 60]
+"Ratchet - Deadlocked" = [192, 192, 192]
+"Ratchet & Clank: Size matters" = [214, 39, 40]
+
+"The Witness" = [42, 172, 251]
+"The Looker" = [245, 203, 161]
+"Viewfinder" = [101, 211, 251]
+
+"Nuclear Throne" = [65, 213, 20]
+"Plants vs. Zombies" = [22, 169, 5]
+"Stardew Valley" = [255, 217, 33]
+"Enter The Gungeon" = [249, 170, 37]
+"GTA V" = [102, 184, 31]
+"Half Life" = [249, 170, 37]
+"Factorio" = [221, 127, 33]
+"Cogmind" = [40, 219, 0]
+# "Activity name" = [r, g, b]  # color for plot
+# ...
+
+"Void" = [0, 0, 0]
+
+[global]
+VOID = "Void"
+UTC_OFFSET = "auto"  # "auto" | <int seconds>
+
+# For scripts that generates images and plots
+SILENT = false  # -s --silent
+
+[tracker]
+ANOTHER = "Другое"
+ANOTHER_DEFAULT_NOTE = "Магазин"
+
+[bar]
+HIDE_VOID = false
+
+LABEL_TRESHOLD = 0.04     # -t <float>
+AV_LABEL_TRESHOLD = 0.04  # -avt <float>
+
+SHOW_LEGEND = true  # -l
+LEGEND_COLUMNS = 1  # -lc <int>
+
+PLOT_WIDTH = 9     # -w <float>
+PLOT_HEIGHT = 5.7  # -h <float>
+
+[barh]
+HIDE_VOID = false  # -v
+
+LABEL_TRESHOLD = 0.04      # -t <float>
+AV_LABEL_TRESHOLD = 0.042  # -avt <float>
+
+SHOW_LEGEND = true  # -l
+LEGEND_COLUMNS = 1  # -lc <int>
+
+PLOT_WIDTH = 9     # -w <float>
+PLOT_HEIGHT = 5.7  # -h <float>
+
+[map]
+SHOW_LEGEND = true  # -l
+LEGEND_COLUMNS = 1  # -lc <int>
+
+PLOT_WIDTH = 13.5  # -w <float>
+PLOT_HEIGHT = 5.7  # -h <float>
+
+[density]
+CUMULATIVE = false  # -c
+
+SILENT = false     # -s --silent
+HIDE_VOID = false  # -v
+
+LABEL_TRESHOLD = 0.07  # -t <float>
+
+SHOW_LEGEND = true  # -l
+LEGEND_COLUMNS = 1  # -lc <int>
+
+PLOT_WIDTH = 13.5  # -w <float>
+PLOT_HEIGHT = 5.7  # -h <float>
+
+[circles]
+COLOR_BG = [21, 23, 32]
+
+START_RADIUS = 16    # -r <int>
+IMAGE_SIDE = "auto"  # -h <auto | int>
+IMAGE_SCALE = 4      # -x <int>

@@ -1,182 +1,210 @@
-import matplotlib.pyplot as plt
-import matplotlib.ticker as mtick
-import save
-
 from math import ceil
 from datetime import datetime
+
+import matplotlib.pyplot as plt
+from matplotlib.ticker import PercentFormatter, MultipleLocator
 from matplotlib.patches import Patch
-from constants import *
 
-# Because colors in matplotlib should be in 0-1 range
-for activity in ACTIVITIES:
-    ACTIVITIES[activity] = tuple([rgb/255 for rgb in ACTIVITIES[activity]])
+import save
+from setup import setup
 
-# Check if there are colors for all activities
-force_exit = False
+from utils import m, h, d, w
+from utils import generate_activites_times
+from utils import normalize_color
+
+ARGS, ACTIVITIES = setup("barh")
+activities_times = generate_activites_times(save.activities, save.timestamp)
+
 save_activities = set([i[0] for i in save.activities])
+average_day = {
+    activity_name: sum(activities_times[activity_name])
+    for activity_name in ACTIVITIES
+    if activity_name in save_activities
+}
 
-for activity in save_activities:
-    if activity not in ACTIVITIES:
-        print(f"Занятия {B}{activity}{W} нет в списке активностей!")
-        force_exit = True
-
-if force_exit: exit()
-del force_exit
-
-# dict of times
-activities_times = {}
-for activity_name in ACTIVITIES: 
-    if activity_name in save_activities:
-        activities_times |= {activity_name: []}
-
-for i, activity in enumerate(save.activities):
-    pivot = save.activities[i+1][1] if i < len(save.activities) - 1 else save.timestamp
-    activities_times[activity[0]].append(pivot - activity[1])
-
-AVERAGE_DAY = {}
-for activity_name in ACTIVITIES:
-    if activity_name == "Void" or activity_name not in save_activities: continue
-    AVERAGE_DAY |= {activity_name: 0}
-
-START_DAY = datetime.fromtimestamp(save.activities[0][1]).weekday()
-EXPERIMENT_START_TIME = save.activities[0][1]
-ALL_EXPERIMENT_TIME = sum([sum(activities_times[i]) for i in activities_times])
-
+# Create plot canvas
 fig, axs = plt.subplot_mosaic(
     (["main"], ["average"]),
-    figsize = (PLOT_WIDTH, PLOT_START_HEIGTH+ALL_EXPERIMENT_TIME//(24*h)*PLOT_HEIGTH_STEP if FULL else PLOT_START_HEIGTH+14*PLOT_HEIGTH_STEP),
-    gridspec_kw = {"height_ratios": [(ALL_EXPERIMENT_TIME//(24*h) + 2 if ALL_EXPERIMENT_TIME >= 48*h else 2) if FULL else 14, 1]}
+    figsize=(ARGS["PLOT_WIDTH"], ARGS["PLOT_HEIGHT"]), 
+    gridspec_kw={"height_ratios": (14, 1)}
 )
 
 fig.canvas.manager.set_window_title("Распределение времени")
-
-view_shift = 0
-if EXCLUDE_VOIDS and "Void" in ACTIVITIES and "Void" in activities_times.keys(): 
-    view_shift = sum(activities_times["Void"])
-    ALL_EXPERIMENT_TIME -= sum(activities_times["Void"])
-
-# print hours and percentages
-print(f"Всего: {round(ALL_EXPERIMENT_TIME / h, 1)}ч ({round(ALL_EXPERIMENT_TIME / (24*h), 1)}д)\n")
-for activity in activities_times:
-    if activity == "Void": continue
-
-    AVERAGE_DAY[activity] = sum(activities_times[activity])
-    print(f"{activity}: {round(AVERAGE_DAY[activity]/h,2)}ч ({round(AVERAGE_DAY[activity]/ALL_EXPERIMENT_TIME * 100, 1)}%)")
-
 ax = list(axs.items())
-x = [1]
-offset = 0
-days = 1
 
-# First plot - distribution for all days
+# First plot - bars for each days
 def bar_constructor(x, y):
     global offset
-    
-    offset += y
-    if activity[0] == 'Void': return
-    
-    ax[0][1].barh(x, y, height=1, left=offset-y, edgecolor="black", linewidth=.5, color=ACTIVITIES[activity[0]], label=activity[-1])
-    if y >= .9*h:
-        ax[0][1].text((y/2+offset-y), x, f"{round(y/h) if round(y/h, 1) == round(y/h) else round(y/h, 1)}ч", va="center", ha="center", clip_on=True)
 
-# generate all parts and add it to plot
-for i in range(len(save.activities)):
-    activity = save.activities[i]
+    if activity[0] != ARGS["VOID"]:
+        ax[0][1].barh(
+            left=offset,
+            y=y,
+            width=x,
+            height=1,
+            edgecolor="black",
+            linewidth=.5,
+            color=normalize_color(ACTIVITIES[activity[0]])
+        )
+        
+        if x >= d * ARGS["LABEL_TRESHOLD"]:
+            ax[0][1].text(
+                x=x/2 + offset,
+                y=y,
+                s=f"{round(x/h) if round(x/h, 1) == round(x/h) else round(x/h, 1)}ч",
+                va="center",
+                ha="center",
+                clip_on=True
+            )
 
-    if i != len(save.activities) - 1: 
-        next_activity_time = datetime.strptime(save.activities[i+1][2], "%d.%m.%Y %H:%M:%S")
-    else: 
-        next_activity_time = datetime.utcfromtimestamp(save.timestamp)
-    
-    this_activity_time = datetime.strptime(activity[2], "%d.%m.%Y %H:%M:%S")
-    
-    activity_max_time = datetime.strptime(activity[2][:10] + " 23:59:59", "%d.%m.%Y %H:%M:%S")
-    activity_min_time = datetime.strptime(activity[2][:10] + " 00:00:00", "%d.%m.%Y %H:%M:%S")
-    
-    # first bar
-    if not i:
-        offset = (this_activity_time - activity_min_time).total_seconds()
+    offset += x
 
-    # create one bar
-    if activities_times[activity[0]][0] <= 24*h - offset:
-        bar_constructor(days, activities_times[activity[0]][0])
+# Generate all parts and add it to plot
+experiment_start_time = save.activities[0][1]
+all_experiment_time = save.timestamp - experiment_start_time
+
+offset = experiment_start_time % d + ARGS["UTC_OFFSET"]
+days = 1
+
+for activity in save.activities:
+    # Create one bar
+    if activities_times[activity[0]][0] <= d - offset:
+        bar_constructor(activities_times[activity[0]][0], days)
 
     else:
         to_distribute = activities_times[activity[0]][0]
-        to_distribute -= 24*h - offset
-        bar_constructor(days, 24*h - offset)
+        to_distribute -= d - offset
+        bar_constructor(d - offset, days)
 
-        # create bars, separated by days
+        # Create bars, separated by days
         while to_distribute != 0:
-            x.append(len(x)+1)
             days += 1
             offset = 0
 
-            if to_distribute >= 24*h:
-                bar_constructor(days, 24*h)
-                to_distribute -= 24*h
+            if to_distribute >= d:
+                bar_constructor(d, days)
+                to_distribute -= d
             else:
-                bar_constructor(days, to_distribute)
+                bar_constructor(to_distribute, days)
                 to_distribute = 0
 
     activities_times[activity[0]].pop(0)
 
-# frame by last 2 weeks if not FULL
-start_hour = EXPERIMENT_START_TIME%(24*h) + UTC_OFFSET
-view_shift = ceil((view_shift+ALL_EXPERIMENT_TIME+start_hour) // (24*h)) - 13.5 if ceil((view_shift+ALL_EXPERIMENT_TIME) // (7*24*h)) > 2 else 0
+if ARGS["SHOW_LEGEND"]:
+    legend_elements = [
+        Patch(
+            facecolor=normalize_color(ACTIVITIES[i]),
+            edgecolor="black",
+            linewidth=.5,
+            label=i
+        ) for i in average_day if i != ARGS["VOID"]
+    ]
+    
+    ax[0][1].legend(handles=legend_elements, ncol=ARGS["LEGEND_COLUMNS"], loc="upper left")
 
-ax[0][1].set_yticks(x, [DAYS_OF_WEEK[(i+START_DAY)%7] for i in range(len(x))])
-ax[0][1].set_ylim(0 if FULL else view_shift, len(x) + .5 if FULL else 15 + view_shift)
-ax[0][1].invert_yaxis()
-ax[0][1].set_xlim(0, 24*h)
-ax[0][1].set_xticks([i*864 for i in range(0, 101, 10)], [f"{i}%" for i in range(0, 101, 10)])
+start_day = datetime.fromtimestamp(save.activities[0][1]).weekday()
+start_hour = experiment_start_time%(d) + ARGS["UTC_OFFSET"]
 
-ax[0][1].yaxis.set_major_formatter(lambda y, _: DAYS_OF_WEEK[(int(y-.5)+START_DAY)%7])
-ax[0][1].xaxis.set_major_formatter(lambda x, _: f"{round(x/h) if round(x/h, 1) == round(x/h) else round(x/h, 1)}ч")
+days_of_week = ("Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс")
 
 def format_coord(x, y):
     x = round(x/h) if round(x/h, 1) == round(x/h) else round(x/h, 1)
-    y = (int(y-.5))
+    y = int(y-.5)
+    
+    selected_time = y*d + x*h + experiment_start_time - start_hour
+    
+    # Form bar info
+    bar_info = ""
+    for k, i in enumerate(save.activities):
+        if i[1] >= selected_time or not save.activities[0][1] <= selected_time <= save.timestamp: break
+        pivot = save.timestamp if len(save.activities)-1 == k else save.activities[k+1][1]
+        
+        bar_info = f"{i[0]}"
+        bar_info += f" ({i[-1]})" if i[-1] else ""
+        bar_info += (
+            f" ({round((pivot - i[1]) / h, 1)}ч)\n" if (pivot - i[1]) / h > 1 else
+            f" ({round((pivot - i[1]) / m, 1)}м)\n"
+        )
+        
+    # Form position info    
+    position_info = (
+        f"{x=}ч, y={days_of_week[(y+start_day)%7]} "
+        f"({round((selected_time - experiment_start_time) // w + 1)} неделя)"
+    )
+        
+    return bar_info + position_info
 
-    timestamp = y*24*h + x*h + EXPERIMENT_START_TIME - EXPERIMENT_START_TIME%(24*h) - UTC_OFFSET
-    note = ''
-
-    week = f"({round((timestamp - EXPERIMENT_START_TIME) // (7*24*h) + 1)} неделя)"
-    if not save.activities[0][1] <= timestamp <= save.timestamp: week = ''
-
-    for i in save.activities:
-        if i[1] >= timestamp or not save.activities[0][1] <= timestamp <= save.timestamp: break
-        note = i[-1]
-
-    if note: return f"Подпись: {note}\n{x=}ч, y={DAYS_OF_WEEK[(y+START_DAY)%7]} {week}"
-    else: return f"\n{x=}ч, y={DAYS_OF_WEEK[(y+START_DAY)%7]} {week}"
+view_shift = ceil((all_experiment_time+start_hour) // d) - 13.5 if ceil((all_experiment_time) / w) > 2 else .5
 
 ax[0][1].format_coord = format_coord
 
-legend_elements = [*[Patch(facecolor=ACTIVITIES[i], edgecolor="black", linewidth=.5, label=i) for i in AVERAGE_DAY]]
-ax[0][1].legend(handles=legend_elements, ncol=LABELS_IN_ROW, loc="upper left")
+ax[0][1].set_xticks(range(0, d+1, d//10), [f"{i}%" for i in range(0, 101, 10)])
+ax[0][1].set_xlim(0, d)
+ax[0][1].xaxis.set_major_formatter(lambda x, _: f"{round(x/h) if round(x/h, 1) == round(x/h) else round(x/h, 1)}ч")
 
-# Second plot - Average time
+ax[0][1].set_yticks(range(1, days+1), [days_of_week[(i+start_day)%7] for i in range(days)])
+ax[0][1].set_ylim(view_shift, 15 + view_shift)
+ax[0][1].invert_yaxis()
+ax[0][1].yaxis.set_major_formatter(lambda y, _: days_of_week[(int(y-.5)+start_day)%7])
+
+# Second plot - average time
 offset = 0
 
-for activity in AVERAGE_DAY:
-    ax[1][1].barh(1, AVERAGE_DAY[activity], height=1, edgecolor="black", color=ACTIVITIES[activity], linewidth=.5, left=offset, label=activity)
+for activity in average_day:
+    if activity != ARGS["VOID"]:
+        ax[1][1].barh(
+            left=offset,
+            y=1,
+            width=average_day[activity],
+            height=1,
+            edgecolor="black",
+            color=normalize_color(ACTIVITIES[activity]),
+            linewidth=.5
+        )
 
-    if AVERAGE_DAY[activity] >= ALL_EXPERIMENT_TIME * 0.05:
-        ax[1][1].text((AVERAGE_DAY[activity]/2+offset), 1, f"{round(AVERAGE_DAY[activity]/ALL_EXPERIMENT_TIME*100, 1)}%", va="center", ha="center", clip_on=True)
+        if average_day[activity] >= all_experiment_time * ARGS["AV_LABEL_TRESHOLD"]:
+            ax[1][1].text(
+                y=1,
+                x=(average_day[activity]/2+offset),
+                s=f"{round(average_day[activity]/all_experiment_time*100, 1)}%",
+                va="center",
+                ha="center",
+                clip_on=True
+            )
 
-    offset += AVERAGE_DAY[activity]
+    offset += average_day[activity]
+
+def format_coord(x, y):
+    time_offset = 0
+    
+    # Form bar info
+    bar_info = ""
+    for activity in average_day:
+        if time_offset + average_day[activity] > x:
+            bar_info = f"{activity} ({round(average_day[activity]/all_experiment_time*100, 1)}%)\n"
+            break
+        
+        time_offset += average_day[activity]
+    
+    # Form position info
+    position_info = f"x={round(x/all_experiment_time*100, 1)}%, y=AV"
+        
+    return bar_info + position_info
+
+average_time_max = all_experiment_time - (average_day[ARGS["VOID"]] if ARGS["HIDE_VOID"] else 0)
+
+ax[1][1].format_coord = format_coord
+
+ax[1][1].set_xlim(0, average_time_max)
+ax[1][1].xaxis.set_major_formatter(PercentFormatter(all_experiment_time))
+ax[1][1].xaxis.set_major_locator(MultipleLocator(average_time_max / 10))
 
 ax[1][1].set_yticks((1,), ("AV",))
 ax[1][1].set_ylim(.5, 1.5)
-ax[1][1].invert_yaxis()
-ax[1][1].set_xlim(0, ALL_EXPERIMENT_TIME)
-ax[1][1].set_xticks([i*ALL_EXPERIMENT_TIME/100 for i in range(0, 101, 10)], [f"{i}%" for i in range(0, 101, 10)])
-
 ax[1][1].yaxis.set_major_formatter(lambda *_: "AV")
-ax[1][1].xaxis.set_major_formatter(mtick.PercentFormatter(ALL_EXPERIMENT_TIME))
 
 plt.tight_layout()
-plt.savefig(f"plot.png", bbox_inches="tight")
+plt.savefig(f"barh.png", bbox_inches="tight")
 
-plt.show()
+if not ARGS["SILENT"]:
+    plt.show()

@@ -1,58 +1,52 @@
-from math import *
-from datetime import datetime
+from math import pi, sin, cos
 
 import numpy
 from PIL import Image
 
 import save
-from constants import *
+from setup import setup
 
-# Check if there are colors for all activities
-force_exit = False
-save_activities = set([i[0] for i in save.activities])
+from utils import h, d, w
 
-for activity in save_activities:
-    if activity not in ACTIVITIES:
-        print(f"Занятия {B}{activity}{W} нет в списке активностей!")
-        force_exit = True
+ARGS, ACTIVITIES = setup("circles")
+all_experiment_time = save.timestamp - save.activities[0][1]
+experiment_start_time = save.activities[0][1]
 
-if force_exit: exit()
-del force_exit
+start_radius = ARGS["START_RADIUS"]
+image_side = (
+    round((start_radius + all_experiment_time/w))*2 + 8
+    if ARGS["IMAGE_SIDE"] == "auto" else
+    ARGS["IMAGE_SIDE"]
+)
 
-# dict of times
-activities_times = {}
-for activity_name in ACTIVITIES: activities_times |= {activity_name: []}
+# Create image canvas
+image = numpy.zeros((image_side, image_side, 3), dtype=numpy.uint8)
+image[:][:] = ARGS["COLOR_BG"]
 
+# Form dots
 for i, activity in enumerate(save.activities):
-    pivot = save.activities[i+1][1] if i < len(save.activities) - 1 else save.timestamp
-    activities_times[activity[0]].append(pivot - activity[1])
-
-# Make circle
-image = numpy.zeros((MAX_X, MAX_Y, 3), dtype=numpy.uint8)
-image[:][:] = COLOR_BG
-data_start = datetime.strptime(save.activities[0][2], "%d.%m.%Y %H:%M:%S")
-days = 0
-
-for i, x in enumerate(save.activities):
-    activity, _, data, _ = x
-    if activity == "Void": continue
-
-    x = (datetime.strptime(data, "%d.%m.%Y %H:%M:%S") - datetime.strptime(data[:10] + " 00:00:00", "%d.%m.%Y %H:%M:%S"))
-    x = (x.total_seconds() + 1 ) / h
+    activity_name, timestamp, *_ = activity
+    if activity_name == ARGS["VOID"]: continue
     
+    x = (timestamp + ARGS["UTC_OFFSET"]) % d / h
+
     if i != len(save.activities) - 1: 
-        days = (datetime.strptime(data, "%d.%m.%Y %H:%M:%S") - data_start).days
+        days = (timestamp - experiment_start_time) / d
     else: 
-        days = (datetime.utcfromtimestamp(save.timestamp) - data_start).days
+        days = (save.timestamp - experiment_start_time) / d
 
-    y = round(cos(pi * x / 12)*(RADIUS + days//7) - MAX_Y//2)
-    x = round(sin(pi * x / 12)*(RADIUS + days//7) + MAX_X//2)
-    image[x][y] = ACTIVITIES[activity]
+    y = round(cos(pi * x / 12)*(start_radius + days/7) - image_side/2)
+    x = round(sin(pi * x / 12)*(start_radius + days/7) + image_side/2)
+    
+    # if activity == "Сон":
+    image[x][y] = ACTIVITIES[activity_name]
 
-print('weeks:', days/7)
+image_side *= ARGS["IMAGE_SCALE"]
 
 image = Image.fromarray(image)
 image = image.transpose(Image.Transpose.ROTATE_90)
-image = image.resize((RESIZE_TO[0], RESIZE_TO[1]), resample=Image.Resampling.BOX)
-image.save('image.png')
-image.show()
+image = image.resize((image_side, image_side), resample=Image.Resampling.BOX)
+image.save(f"circles.png")
+
+if not ARGS["SILENT"]:
+    image.show()
