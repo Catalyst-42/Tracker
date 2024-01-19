@@ -104,9 +104,15 @@ while True:
     system("cls" if platform() == "Windows" else "clear")
 
     # Header
-    activity = len(activities) + 1
-    stageline = f"Этап {magenta}{activity}{white}, ({datetime.fromtimestamp(timestamp).strftime('%H:%M:%S')}) "
-    if len(activities): stageline += f"({cyan}{timedelta(0, round(timestamp - activities[-1][1]))}{white})"
+    activity = len(activities)
+    stageline = "Последния сессия будет отображаться тут\n"
+    
+    if len(activities): 
+        stageline = (
+            f"Этап {magenta}{activity}{white}, {activities[-1][0]} "
+            f"({datetime.fromtimestamp(timestamp).strftime('%H:%M:%S')}) "
+            f"({cyan}{timedelta(0, round(timestamp - activities[-1][1]))}{white})\n"
+        )
 
     print(stageline)
 
@@ -126,7 +132,7 @@ while True:
         print(f"{green}{'edci'[i]}{white}: {name}")
     
     # Gain input
-    session_id = input("\nНомер занятия: ")
+    session_id = input("\nВвод: ")
     if session_id.isdigit(): session_id = int(session_id)
     elif session_id in ('e', 'd', 'c', 'i'): session_id = len(ACTIVITIES) + "edci".index(session_id) + 1
     else: session_id = 0
