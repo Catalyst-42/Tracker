@@ -106,7 +106,7 @@ def format_coord(x, y):
         bar_info = f"{i[0]}"
         bar_info += f" ({i[-1]})" if i[-1] else ""
         bar_info += (
-            f" ({round((pivot - i[1]) / h, 1)}ч)\n" if (pivot - i[1]) / h > 1 else
+            f" ({round((pivot - i[1]) / h, 1)}ч)\n" if (pivot - i[1]) / h >= 1 else
             f" ({round((pivot - i[1]) / m, 1)}м)\n"
         )
         
