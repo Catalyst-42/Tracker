@@ -1,7 +1,6 @@
 from time import time
-from platform import platform
-from os import system, makedirs, path
 from datetime import datetime, timedelta
+from os import system, makedirs, path, name as os_name
 
 from setup import setup
 
@@ -22,7 +21,7 @@ weeks = (timestamp - activities[0][1]) // (7*24*h) if activities else 0
 def data_save(saved=True):
     if len(activities) == 0: return
 
-    file = open("save.py", "w")
+    file = open("save.py", "w", encoding="utf-8")
     
     file.write(f"{saved = }\n{timestamp = }\nactivities = [ \n")
     for i in activities: file.write(f"\t{i},\n")
@@ -38,7 +37,7 @@ def data_save(saved=True):
         filename = f"./dumps/week-{round(weeks)} ({activities[-1][2][:10]}).py"
         makedirs(path.dirname(filename), exist_ok=True)
 
-        file = open(filename, "w")
+        file = open(filename, "w", encoding="utf-8")
 
         file.write(f"{saved = }\ntimestamp = {activities[0][1] + weeks * 7*24*h}\nactivities = [ \n")
         for i in activities: file.write(f"\t{i},\n")
@@ -101,7 +100,7 @@ if not saved:
     data_save()
 
 while True:
-    system("cls" if platform() == "Windows" else "clear")
+    system("cls" if os_name == "nt" else "clear")
 
     # Header
     activity = len(activities)
