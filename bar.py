@@ -11,6 +11,7 @@ from setup import setup
 from utils import m, h, d, w
 from utils import generate_activites_times
 from utils import normalize_color
+from utils import weekdays, months
 
 ARGS, ACTIVITIES = setup("bar")
 activities_times = generate_activites_times(save.activities, save.timestamp)
@@ -105,8 +106,6 @@ if ARGS["SHOW_LEGEND"]:
 start_day = datetime.fromtimestamp(save.activities[0][1]).weekday()
 start_hour = experiment_start_time%(d) + ARGS["UTC_OFFSET"]
 
-days_of_week = ("Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс")
-
 def format_coord(x, y):
     x = int(x-.5)
     y = round(y/h) if round(y/h, 1) == round(y/h) else round(y/h, 1)
@@ -127,9 +126,13 @@ def format_coord(x, y):
         )
         
     # Form position info
+    month = months[datetime.fromtimestamp(selected_time).month - 1]
+    day = datetime.fromtimestamp(selected_time).day
+    week = round((selected_time - experiment_start_time) // w + 1)
+    
     position_info = (
-        f"x={days_of_week[(x+start_day)%7]}, {y=}ч "
-        f"({round((selected_time - experiment_start_time) // w + 1)} неделя)"
+        f"x={weekdays[(x+start_day)%7]}, {y=}ч "
+        f"({day} {month}, {week} неделя)"
     )
         
     return bar_info + position_info
@@ -138,9 +141,9 @@ view_shift = ceil((all_experiment_time+start_hour) // d) - 13.5 if ceil((all_exp
 
 ax[0][1].format_coord = format_coord
 
-ax[0][1].set_xticks(range(1, days+1), [days_of_week[(i+start_day)%7] for i in range(days)])
+ax[0][1].set_xticks(range(1, days+1), [weekdays[(i+start_day)%7] for i in range(days)])
 ax[0][1].set_xlim(view_shift, 15 + view_shift)
-ax[0][1].xaxis.set_major_formatter(lambda x, _: days_of_week[(int(x-.5)+start_day)%7])
+ax[0][1].xaxis.set_major_formatter(lambda x, _: weekdays[(int(x-.5)+start_day)%7])
 
 ax[0][1].set_yticks(range(0, d+1, d//10), [f"{i}%" for i in range(0, 101, 10)])
 ax[0][1].set_ylim(0, d)
