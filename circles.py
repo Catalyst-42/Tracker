@@ -46,7 +46,9 @@ image_side *= ARGS["IMAGE_SCALE"]
 image = Image.fromarray(image)
 image = image.transpose(Image.Transpose.ROTATE_90)
 image = image.resize((image_side, image_side), resample=Image.Resampling.BOX)
-image.save(f"circles.png")
+
+if ARGS["IMAGE"]:
+    image.save(f"circles.png")
 
 if not ARGS["SILENT"]:
     image.show()

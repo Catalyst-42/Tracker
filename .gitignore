@@ -1,0 +1,10 @@
+# Folders
+__pycache__
+drafts
+dumps
+
+# Files
+**/.DS_Store
+*save.py
+*.png
+Makefile

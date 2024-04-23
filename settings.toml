@@ -14,6 +14,7 @@ VOID = "Void"
 UTC_OFFSET = "auto"  # "auto" | <int seconds>
 
 # For scripts that generates images and plots
+IMAGE = false   # -i --image
 SILENT = false  # -s --silent
 
 [tracker]

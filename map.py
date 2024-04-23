@@ -132,7 +132,9 @@ ax[0][1].set_ylim(0, d)
 ax[0][1].yaxis.set_major_formatter(lambda y, _: f"{round(y/h) if round(y/h, 1) == round(y/h) else round(y/h, 1)}ч")
 
 plt.tight_layout()
-plt.savefig(f"map.png", bbox_inches="tight")
+
+if ARGS["IMAGE"]:
+    plt.savefig(f"map.png", bbox_inches="tight")
 
 if not ARGS["SILENT"]:
     plt.show()

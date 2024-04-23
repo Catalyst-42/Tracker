@@ -207,7 +207,9 @@ ax[1][1].set_ylim(.5, 1.5)
 ax[1][1].yaxis.set_major_formatter(lambda *_: "AV")
 
 plt.tight_layout()
-plt.savefig(f"barh.png", bbox_inches="tight")
+
+if ARGS["IMAGE"]:
+    plt.savefig(f"barh.png", bbox_inches="tight")
 
 if not ARGS["SILENT"]:
     plt.show()

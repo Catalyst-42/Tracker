@@ -156,7 +156,9 @@ ax[0][1].yaxis.set_major_formatter(PercentFormatter(1.0))
 ax[0][1].yaxis.set_major_locator(MultipleLocator(percentages_max / 10))
 
 plt.tight_layout()
-plt.savefig(f"density.png", bbox_inches="tight")
+
+if ARGS["IMAGE"]:
+    plt.savefig(f"density.png", bbox_inches="tight")
 
 if not ARGS["SILENT"]:
     plt.show()
