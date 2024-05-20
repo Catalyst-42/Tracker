@@ -1,4 +1,5 @@
 from time import time
+from re import sub, findall, fullmatch
 from datetime import datetime, timedelta
 from os import system, makedirs, path, name as os_name
 
@@ -187,21 +188,27 @@ while True:
         activity_lasts = timedelta(0, round(timestamp - activities[-1][1]))
         print(f"Последний этап: {activity_name} ({activity_start_time}) {cyan}{activity_lasts}{white}")
         
-        try: 
-            allocated_time = eval(input("Этап закончился раньше на: "))
-            
-            if allocated_time < activity_lasts.total_seconds():
-                timestamp -= allocated_time
+        input_offset = input("Этап закончился раньше на: ").strip()
 
+        # Validate string
+        if fullmatch(r"^((([-+]?(\d+)?(\.\d*)?))?([smhdw])?(\s|$))+", input_offset):
+            input_offset = sub(r"([-+]?\d+)(\s|$)", r"\1s ", input_offset)  # Translate values without type to seconds (1 -> 1s)
+            input_offset = sub(r"(^|\s)((-?\+?)([smhdw]))", r" \g<3>1\4 ", input_offset)  # Add values to lone types (h -> 1h)
+            input_offset = [(r[0], r[-1]) for r in findall(r"((-?|\+?)\d+(\.\d*)?)([smhdw])", input_offset)]  # Make (value, type) pairs
+
+            offset = 0
+            for pair in input_offset:
+                offset += float(pair[0]) * {'s': s, 'm': m, 'h': h, 'd': d, 'w': w}[pair[1]]
+
+            if offset < activity_lasts.total_seconds():
+                timestamp -= offset
                 activity_lasts = timedelta(0, round(timestamp - activities[-1][1]))
                 input(f"\nНовая продолжительность этапа: {cyan}{activity_lasts}{white}")
-
             else:
                 input(f"\n{red}Этап становится отрицательным, действие отменено{white}")
+        else:
+            input(f"\n{red}Недопустимая строка, действие отменено{white}")
         
-        except:
-            input(f"\n{red}Действие отменено{white}")
-
     # Add a note
     if session_id == len(ACTIVITIES) + 4:
         activity_name = activities[-1][0]
