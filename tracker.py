@@ -132,11 +132,19 @@ while True:
         print(f"{green}{'edci'[i]}{white}: {name}")
     
     # Gain input
-    session_id = input("\nВвод: ")
-    if session_id.isdigit(): session_id = int(session_id)
-    elif session_id in ('e', 'd', 'c', 'i'): session_id = len(ACTIVITIES) + "edci".index(session_id) + 1
-    else: session_id = 0
-        
+    info = input("\nВвод: ").split()
+    session_id = info[0] if info else ''
+    note = ' '.join(info[1:]) if len(info) > 1 else ''
+
+    if session_id.isdigit():
+        session_id = int(session_id)
+
+    elif session_id in ('e', 'd', 'c', 'i'):
+        session_id = len(ACTIVITIES) + "edci".index(session_id) + 1
+
+    else:
+        session_id = 0
+
     print()
 
     # Create new session
@@ -149,7 +157,7 @@ while True:
             note = activities[-1][3]
 
         else:
-            note = ''
+            # note = ''
             if activity_name == ARGS["ANOTHER"]:
                 note = input("Подпись: ") or (ARGS["ANOTHER_DEFAULT_NOTE"])
 
