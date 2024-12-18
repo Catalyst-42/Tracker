@@ -18,7 +18,7 @@ def add_argument(argument, parser, ARGS):
             default=argparse.SUPPRESS,
             help="Show all script startup parameters and exit"
         )
-            
+
         case "SILENT":
             parser.add_argument(
                 "-s", "--silent",
@@ -38,7 +38,7 @@ def add_argument(argument, parser, ARGS):
                 default=ARGS["IMAGE"],
                 dest="IMAGE"
             )
-            
+
         case "CUMULATIVE":
             parser.add_argument(
                 "-c",
@@ -48,7 +48,7 @@ def add_argument(argument, parser, ARGS):
                 default=ARGS["CUMULATIVE"],
                 dest="CUMULATIVE",
             )
-            
+
         case "HIDE_VOID":
             parser.add_argument(
                 "-v",
@@ -58,7 +58,7 @@ def add_argument(argument, parser, ARGS):
                 default=ARGS["HIDE_VOID"],
                 dest="HIDE_VOID"
             )
-            
+
         case "LABEL_TRESHOLD":
             parser.add_argument(
                 "-t",
@@ -67,7 +67,7 @@ def add_argument(argument, parser, ARGS):
                 type=float,
                 dest="LABEL_TRESHOLD"
             )
-            
+
         case "AV_LABEL_TRESHOLD":
             parser.add_argument(
                 "-avt",
@@ -76,7 +76,7 @@ def add_argument(argument, parser, ARGS):
                 type=float,
                 dest="AV_LABEL_TRESHOLD"
             )
-            
+
         case "SHOW_LEGEND":
             parser.add_argument(
                 "-l",
@@ -86,7 +86,7 @@ def add_argument(argument, parser, ARGS):
                 default=ARGS["SHOW_LEGEND"],
                 dest="SHOW_LEGEND"
             )
-            
+
         case "LEGEND_COLUMNS":
             parser.add_argument(
                 "-lc",
@@ -95,7 +95,7 @@ def add_argument(argument, parser, ARGS):
                 type=int,
                 default=ARGS["LEGEND_COLUMNS"],
             )
-            
+
         case "START_RADIUS":
             parser.add_argument(
                 "-r",
@@ -104,7 +104,7 @@ def add_argument(argument, parser, ARGS):
                 type=float,
                 default=ARGS["START_RADIUS"],
             )
-            
+
         case "IMAGE_SIDE":
             parser.add_argument(
                 "-h",
@@ -113,7 +113,7 @@ def add_argument(argument, parser, ARGS):
                 type=int_or_str,
                 default=ARGS["IMAGE_SIDE"],
             )
-            
+
         case "IMAGE_SCALE":
             parser.add_argument(
                 "-x",
@@ -122,7 +122,7 @@ def add_argument(argument, parser, ARGS):
                 type=int,
                 default=ARGS["IMAGE_SCALE"],
             )
-            
+
         case "PLOT_WIDTH":
             parser.add_argument(
                 "-w",
@@ -131,7 +131,7 @@ def add_argument(argument, parser, ARGS):
                 type=float,
                 default=ARGS["PLOT_WIDTH"],
             )
-            
+
         case "PLOT_HEIGHT":
             parser.add_argument(
                 "-h",
@@ -143,24 +143,24 @@ def add_argument(argument, parser, ARGS):
 
 def setup(script_name):
     settings = tomllib.load(open("settings.toml", "rb"))
-    
+
     # Get settings
     ACTIVITIES = settings["activities"]
     ARGS = settings["global"] | settings[script_name]
-    
+
     # Parse arguments
     parser = argparse.ArgumentParser(add_help=False)
     add_argument("help", parser, ARGS)
-    
+
     for argument in ARGS:
         add_argument(argument, parser, ARGS)
-    
+
     parsed_args = dict(parser.parse_args()._get_kwargs())
     for arg in parsed_args:
         ARGS[arg] = parsed_args[arg]
-    
+
     # Setup auto settings    
     if "UTC_OFFSET" in ARGS and ARGS["UTC_OFFSET"] == "auto":
         ARGS["UTC_OFFSET"] = -timezone
-        
+
     return ARGS, ACTIVITIES

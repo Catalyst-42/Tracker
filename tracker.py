@@ -134,7 +134,15 @@ while True:
     # Gain input
     info = input("\nВвод: ").split()
     session_id = info[0] if info else ''
-    note = ' '.join(info[1:]) if len(info) > 1 else ''
+    
+    force_new = False
+    note = ''
+    if len(info) > 1:
+        if info[1] in ("-f", "-force"):
+            force_new = True
+            info.pop(1)
+
+        note = ' '.join(info[1:])
 
     if session_id.isdigit():
         session_id = int(session_id)
@@ -152,12 +160,16 @@ while True:
         activity_name = list(ACTIVITIES.keys())[session_id-1]
 
         # If activity repeat
-        if len(activities) and activity_name == activities[-1][0]:
+        if len(activities) and activity_name == activities[-1][0] and not force_new:
             print(f"Продолжение предыдущей сессии -> {activities[-1][0]} ({activities[-1][2]})")
+
+            # Bind new note if provided
+            if note:
+                activities[-1][3] = note
+
             note = activities[-1][3]
 
         else:
-            # note = ''
             if activity_name == ARGS["ANOTHER"]:
                 note = input("Подпись: ") or (ARGS["ANOTHER_DEFAULT_NOTE"])
 
