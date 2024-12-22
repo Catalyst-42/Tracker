@@ -171,7 +171,8 @@ while True:
 
         else:
             if activity_name == ARGS["ANOTHER"]:
-                note = input("Подпись: ") or (ARGS["ANOTHER_DEFAULT_NOTE"])
+                if note == '':
+                    note = input("Подпись: ") or (ARGS["ANOTHER_DEFAULT_NOTE"])
 
             activities.append([
                 f"{activity_name}", 
