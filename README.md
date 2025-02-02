@@ -97,7 +97,7 @@ activities = [
 
 ![density -c](images/densityc.png)
 
-Ещё можно создать кружок времени с помощью `circles.py`ю
+Ещё можно создать кружок времени с помощью `circles.py`.
 
 | ![circles 1](images/circles1.png) | ![circles 2](images/circles2.png) |
 |-|-|

@@ -23,7 +23,7 @@ def data_save(saved=True):
     if len(activities) == 0: return
 
     file = open("save.py", "w", encoding="utf-8")
-    
+
     file.write(f"{saved = }\n{timestamp = }\nactivities = [ \n")
     for i in activities: file.write(f"\t{i},\n")
     file.write("]\n")
