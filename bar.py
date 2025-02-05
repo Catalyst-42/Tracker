@@ -64,7 +64,7 @@ def bar_constructor(x, y):
 experiment_start_time = save.activities[0][1]
 all_experiment_time = save.timestamp - experiment_start_time
 
-offset = experiment_start_time % d + ARGS["UTC_OFFSET"]
+offset = (experiment_start_time + ARGS["UTC_OFFSET"]) % d
 days = 1
 
 for activity in save.activities:

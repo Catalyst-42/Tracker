@@ -48,7 +48,7 @@ def bar_constructor(x, y):
 
 # Generate all parts and add it to plot
 experiment_start_time = save.activities[0][1]
-offset = experiment_start_time % d + ARGS["UTC_OFFSET"]
+offset = (experiment_start_time + ARGS["UTC_OFFSET"]) % d
 days = 1
 
 for activity in save.activities:
@@ -122,13 +122,12 @@ def format_coord(x, y):
     return bar_info + position_info
 
 ax[0][1].format_coord = format_coord
+ax[0][1].margins(0)
 
 ax[0][1].set_xticks(range(1, days+1, 7), [(i+start_day) for i in range(1, days+1, 7)])
-ax[0][1].set_xlim(.5, days + .5)
 ax[0][1].xaxis.set_major_formatter(lambda x, _: int(x-.5)//7+1)
 
 ax[0][1].set_yticks(range(0, d+1, d//10), [f"{i}%" for i in range(0, 101, 10)])
-ax[0][1].set_ylim(0, d)
 ax[0][1].yaxis.set_major_formatter(lambda y, _: f"{round(y/h) if round(y/h, 1) == round(y/h) else round(y/h, 1)}ч")
 
 plt.tight_layout()
