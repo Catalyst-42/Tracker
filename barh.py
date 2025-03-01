@@ -104,7 +104,10 @@ if ARGS["SHOW_LEGEND"]:
     ax[0][1].legend(handles=legend_elements, ncol=ARGS["LEGEND_COLUMNS"], loc="upper left")
 
 start_day = datetime.fromtimestamp(save.activities[0][1]).weekday()
-start_hour = experiment_start_time%(d) + ARGS["UTC_OFFSET"]
+start_hour = experiment_start_time % d + ARGS["UTC_OFFSET"]
+
+if start_hour == d:
+    start_hour = 0
 
 def format_coord(x, y):
     x = round(x/h) if round(x/h, 1) == round(x/h) else round(x/h, 1)
