@@ -5,6 +5,8 @@
 "Пары" = [44, 160, 44]
 "Метро" = [214, 39, 40]
 "Домашка" = [149, 103, 189]
+
+# "Activity name" = [r, g, b]  # Color for plot
 # ...
 
 # "Void" = [0, 0, 0]
@@ -13,7 +15,7 @@
 VOID = "Void"
 UTC_OFFSET = "auto"  # "auto" | <int seconds>
 
-# For scripts that generates images and plots
+# For scripts that generate images and plots
 IMAGE = false   # -i --image
 SILENT = false  # -s --silent
 
@@ -72,3 +74,13 @@ COLOR_BG = [21, 23, 32]
 START_RADIUS = 16    # -r <int>
 IMAGE_SIDE = "auto"  # -h <auto | int>
 IMAGE_SCALE = 4      # -x <int>
+
+[migrate]
+INPUT_SAVE = "save.py"
+OUTPUT_JSON = "auto"
+SAVE_NAME = "auto"
+
+[downgrade]
+INPUT_JSON = "save.json"
+OUTPUT_PY = "save.py"
+SAVE_NAME = "auto"
