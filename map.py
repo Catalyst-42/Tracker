@@ -34,6 +34,9 @@ average_day = {
 def bar_constructor(x, y):
     global offset
 
+    # if y == 0:
+    #     return
+
     if activity[0] != ARGS["VOID"]:
         ax[0][1].bar(
             x=x,
@@ -91,7 +94,7 @@ start_day = datetime.fromtimestamp(save.activities[0][1]).weekday()
 start_hour = experiment_start_time%(d) + ARGS["UTC_OFFSET"]
 
 def format_coord(x, y):
-    x = int(x-.5)
+    x = int(x+.5)
     y = round(y/h) if round(y/h, 1) == round(y/h) else round(y/h, 1)
     
     selected_time = x*d + y*h + experiment_start_time - start_hour

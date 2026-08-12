@@ -6,5 +6,6 @@ dumps
 # Files
 **/.DS_Store
 *save.py
+*save.json
 *.png
 Makefile

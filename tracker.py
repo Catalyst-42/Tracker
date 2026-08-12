@@ -51,16 +51,16 @@ def stages_formatter(stages, verb=0):
         form = ["этапа", "этапов", "этапов"]
     else:
         form = ["этап", "этапа", "этапов"]
-        
+
     last_digit = int(str(stages)[-1])
     last_2_digits = int(str(stages)[-2:])
 
     if last_digit == 1 and last_2_digits != 11: 
         return f"{magenta}{stages}{white} {form[0]}"
-    
+
     if 1 <= last_digit <= 4 and (last_2_digits < 10 or last_2_digits > 20):
         return f"{magenta}{stages}{white} {form[1]}"
-    
+
     return f"{magenta}{stages}{white} {form[2]}"
 
 def analytics():
@@ -78,7 +78,7 @@ def analytics():
     # Analyze all data
     for activity_name in ACTIVITIES:
         if activity_name not in save_activities: continue
-        
+
         activity_time = sum(activities_times[activity_name])
         if activity_time == 0: continue
 
@@ -96,7 +96,7 @@ def analytics():
 if not saved:
     input(f"Последняя сессия была прервана: {activities[-1][0]} ({activities[-1][2]})")
     input(f"Добавление потерянного времени: {cyan}+{timedelta(0, int(time() - timestamp))}{white}\n")
-    
+
     timestamp = time()
     data_save()
 
@@ -106,7 +106,7 @@ while True:
     # Header
     activity = len(activities)
     stageline = "Последния сессия будет отображаться тут\n"
-    
+
     if len(activities): 
         stageline = (
             f"Этап {magenta}{activity}{white}, {activities[-1][0]} "
@@ -120,7 +120,7 @@ while True:
     print("Выбор занятия:")
     for i, name in enumerate(ACTIVITIES):
         print(f"{green}{i+1}{white}: {name}")
-    
+
     print()
 
     for i, name in enumerate([
@@ -130,11 +130,11 @@ while True:
         "Добавить подпись к последнему занятию"
     ]):
         print(f"{green}{'edci'[i]}{white}: {name}")
-    
+
     # Gain input
     info = input("\nВвод: ").split()
     session_id = info[0] if info else ''
-    
+
     force_new = False
     note = ''
     if len(info) > 1:
@@ -180,13 +180,13 @@ while True:
                 f"{datetime.fromtimestamp(timestamp).strftime('%d.%m.%Y %H:%M:%S')}",
                 note
             ])
-        
+
         # Wait for input to end session
         data_save(saved=False)
         input(f"<< {activity_name}{'' if not note else ' (' + note + ')'} >>")
-        
+
         timestamp = time()
-    
+
     # End sesstion
     if session_id == len(ACTIVITIES) + 1:
         data_save()
@@ -208,7 +208,7 @@ while True:
 
         activity_lasts = timedelta(0, round(timestamp - activities[-1][1]))
         print(f"Последний этап: {activity_name} ({activity_start_time}) {cyan}{activity_lasts}{white}")
-        
+
         input_offset = input("Этап закончился раньше на: ").strip()
 
         # Validate string
@@ -229,7 +229,7 @@ while True:
                 input(f"\n{red}Этап становится отрицательным, действие отменено{white}")
         else:
             input(f"\n{red}Недопустимая строка, действие отменено{white}")
-        
+
     # Add a note
     if session_id == len(ACTIVITIES) + 4:
         activity_name = activities[-1][0]

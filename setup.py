@@ -141,6 +141,42 @@ def add_argument(argument, parser, ARGS):
                 default=ARGS["PLOT_HEIGHT"],
             )
 
+        case "INPUT_SAVE":
+            parser.add_argument(
+                help="Path to save.py file for conversion",
+                dest="INPUT_SAVE",
+            )
+
+        case "OUTPUT_JSON":
+            parser.add_argument(
+                "-o", "--output",
+                help="Output JSON file path",
+                default=ARGS["OUTPUT_JSON"],
+                dest="OUTPUT_JSON"
+            )
+
+        case "SAVE_NAME":
+            parser.add_argument(
+                "-n", "--name",
+                help="Save name in JSON",
+                default=ARGS["SAVE_NAME"],
+                dest="SAVE_NAME"
+            )
+
+        case "INPUT_JSON":
+            parser.add_argument(
+                help="Path to JSON file for conversion",
+                dest="INPUT_JSON",
+            )
+
+        case "OUTPUT_PY":
+            parser.add_argument(
+                "-o", "--output",
+                help="Output Python file path",
+                default=ARGS["OUTPUT_PY"],
+                dest="OUTPUT_PY"
+            )
+
 def setup(script_name):
     settings = tomllib.load(open("settings.toml", "rb"))
 
